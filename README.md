@@ -8,4 +8,8 @@ O sistema de arquivos RCB enxerga a área de armazenamento como um conjunto de b
 Como dito anteriormente, o boot record é o primeiro bloco do sistema de arquivos. Aqui temos metadados que servirão como referências para a localização de qualquer informação no disco. Um exemplo seria o endereço físico dos limites dos blocos.
 Abaixo, temos uma tabela indicando o significado de cada metadado, o offset de início dos mesmos juntamente com o tamanho, ambos parametros informados a nível de bytes.
 
-Tabela aqui.
+| Offset (em bytes) | Tamanho (em bytes) | Descrição |
+| -------------- | --------------- | --------- |
+| 0 | 2 | Assinatura do sistema de arquivos RCB |
+|   | 2 | Quantidade de bytes por blocos |
+|   | 2 | Quantidade de blocos reservados|
