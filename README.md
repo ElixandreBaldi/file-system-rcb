@@ -9,7 +9,13 @@ Como dito anteriormente, o boot record é o primeiro bloco do sistema de arquivo
 Abaixo, temos uma tabela indicando o significado de cada metadado, o offset de início dos mesmos juntamente com o tamanho, ambos parametros informados a nível de bytes.
 
 | Offset (em bytes) | Tamanho (em bytes) | Descrição |
-| -------------- | --------------- | --------- |
+| - | - | - |
 | 0 | 2 | Assinatura do sistema de arquivos RCB |
 |   | 2 | Quantidade de bytes por blocos |
 |   | 2 | Quantidade de blocos reservados|
+|   | 1 | Quantidade de entradas de diretórios |
+|   | 2 | Capacidade em bytes da partição |
+
+## Tabela de alocação de arquivos
+
+É neste espaço que é armazenado um ponteiro e o status (ocupado, livre) de todos os blocos do disco não reservados do disco, ou seja, a partir do terceiro bloco.
