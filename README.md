@@ -5,17 +5,17 @@ O sistema de arquivos RCB enxerga a área de armazenamento como um conjunto de b
 
 ## Boot Record
 
-Como dito anteriormente, o boot record é o primeiro bloco do sistema de arquivos. Aqui temos metadados que servirão como referências para a localização de qualquer informação no disco. Um exemplo seria o endereço físico dos limites dos blocos.
-Abaixo, temos uma tabela indicando o significado de cada metadado, o offset de início dos mesmos juntamente com o tamanho, ambos parametros informados a nível de bytes.
+Como dito anteriormente, o boot record é o primeiro bloco do sistema de arquivos. Nele, encontram-se metadados que servirão como referência para a localização de qualquer informação no disco. Um exemplo seria o endereço físico dos limites dos blocos.
+A tabela abaixo, indica o significado de cada metadado, o offset de início e o tamanho de cada um, ambos parâmetros informados a nível de bytes.
 
 | Offset (em bytes) | Tamanho (em bytes) | Descrição |
 | - | - | - |
 | 0 | 2 | Assinatura do sistema de arquivos RCB |
-|   | 2 | Quantidade de bytes por blocos |
-|   | 2 | Quantidade de blocos reservados|
-|   | 1 | Quantidade de entradas de diretórios |
-|   | 2 | Capacidade em bytes da partição |
+| 2 | 2 | Quantidade de bytes por blocos |
+| 5 | 2 | Quantidade de blocos reservados|
+| 7 | 1 | Quantidade de entradas no diretório raiz |
+| 8 | 2 | Capacidade em bytes da partição |
 
 ## Tabela de alocação de arquivos
 
-É neste espaço que é armazenado um ponteiro e o status (ocupado, livre) de todos os blocos do disco não reservados do disco, ou seja, a partir do terceiro bloco.
+É neste espaço que são armazenados os ponteiros seus respectivos status (ocupado, livre) de todos os blocos do disco.
