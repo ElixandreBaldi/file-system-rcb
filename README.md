@@ -22,3 +22,12 @@ A tabela abaixo, indica o significado de cada metadado, o offset de início e o 
 ## Tabela de alocação de arquivos
 
 É neste espaço que são armazenados os ponteiros seus respectivos status (ocupado, livre) de todos os blocos do disco.
+
+## Tabela de Dados
+
+| Offset (em bytes) | Tamanho (em bytes) | Descrição |
+| - | - | - |
+| 0 | 11 | Nome do arquivo, em que os 8 primeiros caracteres são o nome e os três ultimos a extenção |
+| 11 | 1 | Atributo do arquivo, podendo ser: diretório (0x01) ou arquivo (0x10) |
+| 12 | 1 | Identificação do primeiro cluster do arquivo |
+| 13 | 4 | Tamanho do arquivo em bytes |
