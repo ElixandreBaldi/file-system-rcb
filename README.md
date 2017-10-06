@@ -21,10 +21,14 @@ A tabela abaixo, indica o significado de cada metadado, o offset de início e o 
 
 ## Tabela de alocação de arquivos
 
-É neste espaço que são armazenados os ponteiros seus respectivos status (ocupado, livre) de todos os blocos do disco. Cada linha deste setor contem um valor de 2 bytes. O índice da linha indica o endereço do espeço do dado em questão, e o conteúdo da linha representa o próximo índice do dado em questão. Este valor pode ser (em hexadecimal): 
-Qualquer outro valor = Representa o próximo índice da sequência do dado.
-FFFF = A sequência do dado chegou ao fim
-0000 = O espaço está vazio
+É neste espaço que são armazenados os ponteiros seus respectivos status (ocupado, livre) de todos os blocos do disco. Cada linha deste setor contem um valor de 2 bytes. O índice da linha indica o endereço do espeço do dado em questão, e o conteúdo da linha representa o próximo índice do dado em questão. Este valor pode ser (em hexadecimal).
+
+| Valor em hexadecimal | Descrição |
+| - | - |
+| FFFF | A sequência do dado chegou ao fim. |
+| FFFE | O espaço está vazio. |
+| FFFD | O espaço é inválido. |
+| Qualquer outro valor | Próxima posição da sequência do arquivo. |
 
 ## Tabela de Dados de Diretórios
 
