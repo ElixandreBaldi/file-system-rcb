@@ -13,13 +13,13 @@ A tabela abaixo, indica o significado de cada metadado, o offset de início e o 
 
 | Offset (em bytes) | Tamanho (em bytes) | Descrição |
 | - | - | - |
-| 0 | 2 | Assinatura do sistema de arquivos RCB |
-| 2 | 2 | Quantidade de bytes por setor |
-| 5 | 2 | Quantidade de setores reservados|
-| 7 | 1 | Quantidade de entradas no diretório raiz |
-| 8 | 2 | Capacidade em bytes da partição |
-| 10 | 2 | Quantidade de setores da tabela de alocação de arquivos |
-| 12 | 2 | Quantidade de setores do disco |
+| 0 | 4 | Assinatura do sistema de arquivos RCB |
+| 4 | 2 | Quantidade de bytes por setor |
+| 6 | 2 | Quantidade de setores reservados|
+| 8 | 2 | Quantidade de entradas no diretório raiz |
+| 10 | 2 | Capacidade em bytes da partição |
+| 12 | 2 | Quantidade de setores da tabela de alocação de arquivos |
+| 14 | 2 | Quantidade de setores que existem fisicamente no disco |
 
 ## Tabela de alocação de arquivos
 
@@ -33,7 +33,7 @@ A tabela abaixo, indica o significado de cada metadado, o offset de início e o 
 
 Como utilizamos 16 bits para endereçamento dos setores, o nosso disco pode ter até 65536 setores independentemente da capacidade do disco. Visto que a tabela de alocação de arquivos aloca até 65536 linhas e que cada linha tem 2 bytes, é fato que a tabela de alocação de dados sempre terá 131072 bytes. Dessa forma, para descobrir quantos setores a tabela de alocação de dados ocupa, é necessário dividir 131072 pela quantidade de bytes por setor, que está especificado no Boot Record.
 
-Vale lembrar que a tabela de alocação de arquivos sempre terá 65536 linhas, mas muitas vezes existirão linhas que endereçaram setores inexistentes, pois o disco pode ter menos do que 65536 setores. Dessa forma no Boot Record, é definido a quantidade de setores no disco. Assim, a tabela de alocação de arquivos não poderá utilizar a partir da posição correspondente ao último setor.
+Vale lembrar que a tabela de alocação de arquivos sempre terá 65536 linhas, mas muitas vezes existirão linhas que endereçarão setores inexistentes, pois o disco pode ter menos do que 65536 setores. Dessa forma no Boot Record, é definido a quantidade de setores no disco. Assim, a tabela de alocação de arquivos não poderá utilizar a partir da posição correspondente ao último valor da tabela do Boot Record. 
 
 ## Tabela de Dados de Diretórios
 
@@ -41,7 +41,17 @@ Todos os diretórios da partição terá a seguinte tabela para cada entrada.
 
 | Offset (em bytes) | Tamanho (em bytes) | Descrição |
 | - | - | - |
-| 0 | 11 | Nome do arquivo, em que os 8 primeiros caracteres são o nome e os três ultimos a extenção |
-| 11 | 1 | Atributo do arquivo, podendo ser: diretório (0x01) ou arquivo (0x10) |
-| 12 | 1 | Identificação do primeiro cluster do arquivo |
-| 13 | 4 | Tamanho do arquivo em bytes |
+| 0 | 25 | Nome do arquivo, em que os 23 primeiros caracteres são o nome e os três ultimos a extenção. |
+| 26 | 1 | Atributo do arquivo, de acordo com a tabela abaixo. |
+| 27 | 1 | Identificação do primeiro cluster do arquivo. |
+| 28 | 4 | Tamanho do arquivo em bytes. |
+
+## Dados possíveis do sistema
+| Descrição | Valor|
+|-|-|
+|Arquivo| 00000000 |
+|Diretório| 00000001 |
+|Hidden| 0000001X |
+|Deletado| 000001XX |
+
+Variáveis com X podem ser expressas por '0' ou '1' podendo representar mais de um atributo da tabela. 
