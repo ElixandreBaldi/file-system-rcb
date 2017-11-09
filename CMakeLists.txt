@@ -3,5 +3,5 @@ project(rcb_file_system)
 
 set(CMAKE_C_STANDARD 11)
 
-set(SOURCE_FILES main.c messages.h format_utils.h)
+set(SOURCE_FILES main.c messages.h format_utils.h boot_record_utils.h rcb_allocation_table.h)
 add_executable(rcb_file_system ${SOURCE_FILES})

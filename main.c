@@ -1,23 +1,35 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "messages.h"
 #include "format_utils.h"
 
 int format_device(const char *device_name) {
     char option;
+    int size;
+    bool hard = false;
     printf("Are you sure you want to format the device? [Y/n] ");
     scanf("%c", &option);
+    getchar();
     if (option != 'y' && option != 'Y') {
         return 0;
     }
     printf("Do you want to hard format your device (may be slower)? [Y/n] ");
-    getchar();
     scanf("%c", &option);
-    if (option != 'y' && option != 'Y') {
-        return soft_format(device_name);
-    } else {
-        return hard_format(device_name);
+    getchar();
+    if (option == 'y' || option == 'Y') {
+        hard = true;
     }
+    printf("Size of sectors in bytes (must be a power of two): ");
+    scanf("%d", &size);
+    getchar();
+
+    if(hard){
+        hard_format(device_name, size);
+    } else{
+        soft_format(device_name, size);
+    }
+
 }
 
 int enter_device(const char *device_name) {
