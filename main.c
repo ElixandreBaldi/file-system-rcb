@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
-#include <ctype.h>
 #include "messages.h"
 #include "format_utils.h"
 

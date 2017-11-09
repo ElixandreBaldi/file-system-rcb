@@ -2,13 +2,15 @@
 #define RCB_FILE_SYSTEM_FORMAT_UTILS_H
 
 #include <stdio.h>
+#include <errno.h>
 #include "messages.h"
 
 int hard_format(const char *device_name) {
     FILE *device;
-    device = fopen(device_name, "w");
+    int nil;
+    device = fopen(device_name, "w+");
     if (device == NULL) {
-        print_invalid_device();
+        print_invalid_device(strerror(errno));
         return 1;
     }
     fclose(device);
@@ -17,9 +19,9 @@ int hard_format(const char *device_name) {
 
 int soft_format(const char *device_name) {
     FILE *device;
-    device = fopen(device_name, "r+");
+    device = fopen(device_name, "w+");
     if (device == NULL) {
-        print_invalid_device();
+        print_invalid_device(strerror(errno));
         return 1;
     }
     fclose(device);

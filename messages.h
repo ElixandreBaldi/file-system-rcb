@@ -1,7 +1,7 @@
 #ifndef RCB_FILE_SYSTEM_MESSAGES_H
 #define RCB_FILE_SYSTEM_MESSAGES_H
 
-#include<stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void print_help() {
@@ -26,10 +26,9 @@ void print_error() {
     printf("--help\t\t\t\t\tDisplay help message\n");
 }
 
-void print_invalid_device() {
-    printf("Invalid device\n\n");
-    printf("Available devices:\n");
-    system("lsblk -o NAME,TYPE,SIZE,MODEL");
+void print_invalid_device(char* error) {
+    printf("%s\n", error);
+    printf("To see available devices: lsblk -o NAME,TYPE,SIZE,MODEL\n");
 }
 
 #endif
