@@ -2,6 +2,7 @@
 #define RCB_FILE_SYSTEM_MESSAGES_H
 
 #include<stdio.h>
+#include <stdlib.h>
 
 void print_help() {
     printf("    ____  __________ \n"
@@ -23,6 +24,12 @@ void print_error() {
     printf("--format [device]\t\tFormat a device to the RCBFS\n");
     printf("--enter\t [device]\t\tEnter the device listing files and directories\n");
     printf("--help\t\t\t\t\tDisplay help message\n");
+}
+
+void print_invalid_device() {
+    printf("Invalid device\n\n");
+    printf("Available devices:\n");
+    system("lsblk -o NAME,TYPE,SIZE,MODEL");
 }
 
 #endif
