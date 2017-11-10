@@ -35,6 +35,10 @@ int write_boot_record(FILE *device, int size) {
 void write_root_dir(FILE *device, int size, int sectors_per_rcb){
     root_dir dir;
 
+    strcmp(dir.file_name, "root");
+    dir.attribute_of_file = 1;
+    dir.first_cluster = 0; // Define first cluster of the root
+    dir.size_of_file = 0;
     fseek(device, size * (1 + sectors_per_rcb), SEEK_SET);
 }
 
