@@ -24,11 +24,7 @@ int format_device(const char *device_name) {
     scanf("%d", &size);
     getchar();
 
-    if(hard){
-        hard_format(device_name, size);
-    } else{
-        soft_format(device_name, size);
-    }
+    return hard ? hard_format(device_name, size) : soft_format(device_name, size);
 
 }
 

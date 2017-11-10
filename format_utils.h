@@ -6,31 +6,56 @@
 #include "messages.h"
 #include "struct_utils.h"
 
+#define RCB_TABLE_SIZE 131072
+
+
+int write_boot_record(FILE *device, int size) {
+    boot_record btr;
+
+    fseek(device, 0, SEEK_SET);
+    btr.rbc = (unsigned char) "RCB.";
+    btr.bytes_per_sector = (unsigned short) size;
+    btr.sectors_per_rcb = (unsigned short) (RCB_TABLE_SIZE / btr.bytes_per_sector);
+    btr.reserved_sectors = (unsigned short) (1 + btr.sectors_per_rcb);
+    btr.entry_directory = (unsigned short) (btr.bytes_per_sector / 32); //32 seria o tamanho da tabela de dados.
+    btr.bytes_per_partition = (unsigned int) 20480000; //TODO
+    btr.sectors_per_disk = (unsigned short) (btr.bytes_per_partition / btr.bytes_per_sector);
+
+    fwrite(&btr.rbc, 1, sizeof(char), device);
+    fwrite(&btr.bytes_per_sector, 1, sizeof(short), device);
+    fwrite(&btr.reserved_sectors, 1, sizeof(short), device);
+    fwrite(&btr.entry_directory, 1, sizeof(short), device);
+    fwrite(&btr.bytes_per_partition, 1, sizeof(int), device);
+    fwrite(&btr.sectors_per_rcb, 1, sizeof(short), device);
+    fwrite(&btr.sectors_per_disk, 1, sizeof(short), device);
+
+    return btr.sectors_per_rcb;
+}
+
+void write_root_dir(FILE *device, int size, int sectors_per_rcb){
+    root_dir dir;
+
+    fseek(device, size * (1 + sectors_per_rcb), SEEK_SET);
+}
+
 int hard_format(const char *device_name, int size) {
     FILE *device;
-    boot_record btr;
-    rcb_table rcb;
-    int nil;
-    int zero = 0;
-    size_t read;
-    device = fopen(device_name, "rb");
+
+    device = fopen(device_name, "rb+");
     if(device == NULL){
         print_invalid_device(strerror(errno));
         return 1;
     }
-    fseek(device, 0, SEEK_SET);
-    while ((read = fread(&nil, 1, sizeof(nil), device)) == sizeof(nil)) {
-        fseek(device, -read, SEEK_CUR);
-        fwrite(&zero, 1, read, device);
+
+    while (fgetc (device) != EOF) {
+        fseek(device, -1, SEEK_CUR);
+        fputc('\0', device);
     }
 
-    btr.rbc = (unsigned short) "RCB";
-    btr.bytes_per_sector = (unsigned short) size;
-    btr.sectors_per_rcb = (unsigned short) (131072 / btr.bytes_per_sector);
-    btr.reserved_sectors = (unsigned short) (1 + btr.sectors_per_rcb);
-    btr.entry_directory = 512; //TODO
-    btr.sectors_per_disk = btr.bytes_per_sector * btr.sectors_per_rcb;
+    int sectors_per_rcb = write_boot_record(device, size);
+    write_root_dir(device, size, sectors_per_rcb);
 
+    fclose(device);
     return 0;
 }
 
