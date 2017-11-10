@@ -11,4 +11,11 @@ typedef struct boot_record{
     unsigned short sectors_per_disk;
 } __attribute__((packed)) boot_record;
 
+typedef struct rcb_table{
+    char file_name[24];
+    unsigned short attribute_of_file;
+    unsigned short first_cluster;
+    unsigned int size_of_file;
+} __attribute__((packed)) rcb_table;
+
 #endif

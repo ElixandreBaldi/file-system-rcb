@@ -4,13 +4,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include "messages.h"
-#include "boot_record_utils.h"
-#include "rcb_allocation_table.h"
+#include "struct_utils.h"
 
 int hard_format(const char *device_name, int size) {
     FILE *device;
     boot_record btr;
-    rcb_allocation_table rcb;
+    rcb_table rcb;
     int nil;
     int zero = 0;
     size_t read;
