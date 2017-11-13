@@ -5,11 +5,7 @@
 #include <errno.h>
 #include "messages.h"
 #include "struct_utils.h"
-
-#define RCB_TABLE_SIZE 131072
-#define RCB_DATA_TABLE 32
-#define SIGNATURE "RCB!"
-
+#include "generic_utils.h"
 
 unsigned int write_boot_record(FILE *device, unsigned int sect_size, long device_size) {
     boot_record btr;
@@ -33,15 +29,6 @@ void write_root_dir(FILE *device, unsigned int sect_size, unsigned int sectors_p
     root_dir dir;
     //
     fseek(device, sect_size * (1 + sectors_per_rcb), SEEK_SET);
-}
-
-long get_device_size(FILE *device) {
-    long size;
-    fseek(device, 0L, SEEK_END);
-    size = ftell(device);
-    rewind(device);
-
-    return size;
 }
 
 int hard_format(const char *device_name, unsigned int sect_size) {
@@ -70,6 +57,30 @@ int hard_format(const char *device_name, unsigned int sect_size) {
 int soft_format(const char *device_name, int size) {
     //
     return 0;
+}
+
+int format_device(const char *device_name) {
+    char option;
+    unsigned int sect_size;
+    bool hard = false;
+    printf("Are you sure you want to format the device? [Y/n] ");
+    scanf("%c", &option);
+    getchar();
+    if (option != 'y' && option != 'Y') {
+        return 0;
+    }
+    printf("Do you want to hard format your device (may be slower)? [Y/n] ");
+    scanf("%c", &option);
+    getchar();
+    if (option == 'y' || option == 'Y') {
+        hard = true;
+    }
+    printf("Size of sectors in bytes (must be a power of two): ");
+    scanf("%d", &sect_size);
+    sect_size = parse_sect(sect_size);
+    getchar();
+
+    return hard ? hard_format(device_name, sect_size) : soft_format(device_name, sect_size);
 }
 
 #endif

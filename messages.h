@@ -23,12 +23,28 @@ void print_error() {
     printf("Arguments:\n");
     printf("--format [device]\t\tFormat a device to the RCBFS\n");
     printf("--enter\t [device]\t\tEnter the device listing files and directories\n");
-    printf("--help\t\t\t\t\tDisplay help message\n");
+    printf("--help\t\t\t\t\tDisplay this help message\n");
 }
 
 void print_invalid_device(char* error) {
     printf("%s\n", error);
     printf("To see available devices: lsblk -o NAME,TYPE,SIZE,MODEL\n");
+}
+
+void print_navigator_error() {
+    printf("⛔ Invalid command\n\n");
+    printf("Type 'help' to list available options.\n");
+}
+
+void print_navigator_help() {
+    printf("Available commands:\n");
+    printf("exit\t\tExit navigator\n");
+    printf("pwd\t\tDisplay the current directory path\n");
+    printf("ls\t\tList the current directory\n");
+    printf("cd [dir]\t\tEnter a given directory\n");
+    printf("rm [dir|file]\t\tRemove a given directory or file\n");
+    printf("info\t\tDisplay the device information\n");
+    printf("help\t\tDisplay this help message\n");
 }
 
 #endif
