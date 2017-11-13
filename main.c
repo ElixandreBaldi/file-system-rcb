@@ -6,7 +6,7 @@
 
 int format_device(const char *device_name) {
     char option;
-    int size;
+    int sect_size;
     bool hard = false;
     printf("Are you sure you want to format the device? [Y/n] ");
     scanf("%c", &option);
@@ -21,10 +21,10 @@ int format_device(const char *device_name) {
         hard = true;
     }
     printf("Size of sectors in bytes (must be a power of two): ");
-    scanf("%d", &size);
+    scanf("%d", &sect_size);
     getchar();
 
-    return hard ? hard_format(device_name, size) : soft_format(device_name, size);
+    return hard ? hard_format(device_name, sect_size) : soft_format(device_name, sect_size);
 
 }
 
