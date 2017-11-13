@@ -73,10 +73,11 @@ void parse_command(const char *command) {
 }
 
 void init_nav() {
-    char *command;
+    char command[255];
     do {
-        printf("rcbfs>");
-        scanf("%[ A-Za-z]s", command);
+        printf("rcbfs> ");
+        scanf("%s", command);
+        getchar();
         if (strcmp(command, "exit") == 0) {
             break;
         } else {
