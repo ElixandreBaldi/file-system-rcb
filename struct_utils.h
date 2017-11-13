@@ -2,7 +2,7 @@
 #define RCB_FILE_SYSTEM_BOOT_RECORD_UTILS_H
 
 typedef struct boot_record{
-    unsigned char rbc;
+    char rcb[4];
     unsigned short bytes_per_sector;
     unsigned short reserved_sectors;
     unsigned short entry_directory;
