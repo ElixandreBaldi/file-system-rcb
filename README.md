@@ -13,11 +13,11 @@ A tabela abaixo, indica o significado de cada metadado, o offset de início e o 
 
 | Offset (em bytes) | Tamanho (em bytes) | Descrição |
 | - | - | - |
-| 0 | 4 | Assinatura do sistema de arquivos RCB |
-| 4 | 2 | Quantidade de bytes por setor |
-| 6 | 2 | Quantidade de setores reservados|
-| 8 | 2 | Quantidade de entradas por diretório |
-| 10 | 2 | Capacidade em bytes da partição |
+| 0 | 2 | Assinatura do sistema de arquivos RCB |
+| 2 | 2 | Quantidade de bytes por setor |
+| 4 | 2 | Quantidade de setores reservados|
+| 6 | 2 | Quantidade de entradas por diretório |
+| 8 | 4 | Capacidade em bytes da partição |
 | 12 | 2 | Quantidade de setores da tabela de alocação de arquivos |
 | 14 | 2 | Quantidade de setores que existem fisicamente no disco |
 

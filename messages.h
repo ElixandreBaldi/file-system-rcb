@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void print_valid_arguments(){
+void print_valid_arguments() {
     printf("Arguments:\n");
     printf("--format [device]\t\tFormat a device to the RCBFS\n");
     printf("--enter\t [device]\t\tEnter the device listing files and directories\n");
@@ -28,11 +28,11 @@ void print_error() {
     print_valid_arguments();
 }
 
-void print_invalid_file(char* error) {
+void print_invalid_file(char *error) {
     printf("%s\n", error);
 }
 
-void print_invalid_device(char* error) {
+void print_invalid_device(char *error) {
     print_invalid_file(error);
     printf("To see available devices: lsblk -o NAME,TYPE,SIZE,MODEL\n");
 }
@@ -53,8 +53,14 @@ void print_navigator_help() {
     printf("help\t\t\t\tDisplay this help message\n");
 }
 
-void print_non_rcbfs_device () {
+void print_non_rcbfs_device() {
     printf("The device is not on RCBFS. If you want to format it, use the --format option.\n");
+}
+
+void print_not_enough_space(unsigned int needed, unsigned int available) {
+    printf("⛔ Not enough space to allocate file.\n");
+    printf("%d bytes needed.\n", needed);
+    printf("%d bytes available.\n", available);
 }
 
 #endif

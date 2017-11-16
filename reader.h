@@ -2,7 +2,7 @@
 #define RCB_FILE_SYSTEM_READER_H
 
 #include <stdio.h>
-#include "struct_utils.h"
+#include "data_structures.h"
 #include "boot_utils.h"
 
 navigator nav;

@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <math.h>
 
-#define RCB_TABLE_SIZE 131072
+#define RCB_TABLE_SIZE 65536
 #define RCB_DATA_TABLE 32
-#define SIGNATURE "RCB!"
+#define SIGNATURE ":3"
 #define EMPTY_SPACE 0xFFFE
 #define SPACE_SIZE 2
 

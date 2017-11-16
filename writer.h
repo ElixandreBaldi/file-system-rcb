@@ -3,7 +3,8 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "struct_utils.h"
+#include "data_structures.h"
+#include "rcb_utils.h"
 
 writer wrt;
 
@@ -28,9 +29,20 @@ bool prepare_files() {
     return true;
 }
 
+bool transfer() {
+
+}
 
 bool run() {
-    unsigned long sectors_needed = (unsigned long) ceil((wrt.target_size / (double) wrt.boot.bytes_per_sector));
+    unsigned int sectors_needed = (unsigned int) ceil((wrt.target_size / (double) wrt.boot.bytes_per_sector));
+    read_rcb(wrt.device, wrt.boot.bytes_per_sector);
+    unsigned int available_pos = free_positions();
+    if (available_pos >= sectors_needed) {
+        return transfer();
+    } else {
+        print_not_enough_space(sectors_needed * wrt.boot.bytes_per_sector, available_pos * wrt.boot.bytes_per_sector);
+        return false;
+    }
     return true;
 }
 

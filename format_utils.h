@@ -4,13 +4,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include "messages.h"
-#include "struct_utils.h"
+#include "data_structures.h"
 #include "generic_utils.h"
 
-int clear_rcb( unsigned short sectors_per_rcb,unsigned short bytes_per_sector, FILE *device ){
+int clear_rcb( unsigned short sectors_per_rcb, unsigned short bytes_per_sector, FILE *device ){
     unsigned short empty = EMPTY_SPACE;
     fseek(device, bytes_per_sector, SEEK_SET);
-
     for( int i = 0; i < bytes_per_sector * sectors_per_rcb; i++) {
         fwrite(&empty, 1, SPACE_SIZE, device);
     }

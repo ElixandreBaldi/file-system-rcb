@@ -1,8 +1,10 @@
+#include "generic_utils.h"
+
 #ifndef RCB_FILE_SYSTEM_BOOT_RECORD_UTILS_H
 #define RCB_FILE_SYSTEM_BOOT_RECORD_UTILS_H
 
 typedef struct boot_record {
-    char rcb[4];
+    char rcb[2];
     unsigned short bytes_per_sector;
     unsigned short reserved_sectors;
     unsigned short entry_directory;
@@ -17,6 +19,10 @@ typedef struct root_dir {
     unsigned short first_cluster;
     unsigned int size_of_file;
 } __attribute__((packed)) root_dir;
+
+typedef struct rcb_table {
+    unsigned short content[RCB_TABLE_SIZE];
+} __attribute__((packed)) rcb_table;
 
 typedef struct writer {
     const char *device_name;
