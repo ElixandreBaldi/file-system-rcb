@@ -10,8 +10,8 @@ boot_record read_boot_record(boot_record boot, FILE *device) {
 }
 
 bool is_valid_boot_record(boot_record boot) {
-    char signature[4] = SIGNATURE;
-    for(int i = 0; i < 4; i++) {
+    char signature[2] = SIGNATURE;
+    for(int i = 0; i < 2; i++) {
         if (signature[i]!= boot.rcb[i]) {
             return false;
         }

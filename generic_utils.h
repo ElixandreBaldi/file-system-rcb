@@ -4,12 +4,15 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
+#include "data_structures.h"
 
 #define RCB_TABLE_SIZE 65536
 #define RCB_DATA_TABLE 32
 #define SIGNATURE ":3"
 #define EMPTY_SPACE 0xFFFE
+#define RCB_EOF 0xFFFF
 #define SPACE_SIZE 2
+#define BTR_SIZE 16
 
 unsigned long get_size(FILE *stream) {
     unsigned long size;
@@ -25,11 +28,14 @@ bool is_power_of_2(unsigned int x) {
 }
 
 unsigned int parse_sect(unsigned int sect_size) {
+    if (sect_size < BTR_SIZE) {
+        print_insufficient_sect_size(BTR_SIZE);
+        return BTR_SIZE;
+    }
     if (!is_power_of_2(sect_size)) {
         unsigned int res;
-        printf("Warning! The sector size is not a power of two and will be decreased.\n");
         res = (unsigned int) pow(2, floor(log2(sect_size)));
-        printf("Actual sector size: %d\n", res);
+        print_sect_size_not_power_of_two(res);
         return res;
     }
 

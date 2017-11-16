@@ -30,14 +30,26 @@ bool prepare_files() {
 }
 
 bool transfer() {
+    return true;
+}
 
+void allocate_rcb_for_file(unsigned short *spaces, unsigned short sectors_needed) {
+    unsigned short i;
+    for (i = 0; i < sectors_needed - 1; i++) {
+        write_pos(i, (unsigned short) (i + 1));
+    }
+    write_pos(i, RCB_EOF);
+    sync_rcb(wrt.device, wrt.boot.bytes_per_sector);
 }
 
 bool run() {
-    unsigned int sectors_needed = (unsigned int) ceil((wrt.target_size / (double) wrt.boot.bytes_per_sector));
+    unsigned short sectors_needed = (unsigned short) ceil((wrt.target_size / (double) wrt.boot.bytes_per_sector));
     read_rcb(wrt.device, wrt.boot.bytes_per_sector);
-    unsigned int available_pos = free_positions();
+    unsigned int available_pos = free_positions(wrt.boot.reserved_sectors);
+    unsigned short *spaces;
     if (available_pos >= sectors_needed) {
+        spaces = get_free_spaces(sectors_needed, wrt.boot.reserved_sectors);
+        allocate_rcb_for_file(spaces, sectors_needed);
         return transfer();
     } else {
         print_not_enough_space(sectors_needed * wrt.boot.bytes_per_sector, available_pos * wrt.boot.bytes_per_sector);

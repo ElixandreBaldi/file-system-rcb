@@ -63,4 +63,14 @@ void print_not_enough_space(unsigned int needed, unsigned int available) {
     printf("%d bytes available.\n", available);
 }
 
+void print_sect_size_not_power_of_two(unsigned int actual_size) {
+    printf("Warning! The sector size is not a power of two and will be decreased.\n");
+    printf("Actual sector size: %d\n", actual_size);
+}
+
+void print_insufficient_sect_size(unsigned int actual_size) {
+    printf("Warning! The sector size is not sufficient and will be increased.\n");
+    printf("Actual sector size: %d\n", actual_size);
+}
+
 #endif
