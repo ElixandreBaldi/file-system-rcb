@@ -8,11 +8,13 @@
 #define RCB_TABLE_SIZE 131072
 #define RCB_DATA_TABLE 32
 #define SIGNATURE "RCB!"
+#define EMPTY_SPACE 0xFFFE
+#define SPACE_SIZE 2
 
-long get_size(FILE *stream) {
-    long size;
+unsigned long get_size(FILE *stream) {
+    unsigned long size;
     fseek(stream, 0L, SEEK_END);
-    size = ftell(stream);
+    size = (unsigned long) ftell(stream);
     rewind(stream);
 
     return size;

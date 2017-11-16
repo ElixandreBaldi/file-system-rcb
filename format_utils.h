@@ -7,9 +7,17 @@
 #include "struct_utils.h"
 #include "generic_utils.h"
 
+int clear_rcb( unsigned short sectors_per_rcb,unsigned short bytes_per_sector, FILE *device ){
+    unsigned short empty = EMPTY_SPACE;
+    fseek(device, bytes_per_sector, SEEK_SET);
+
+    for( int i = 0; i < bytes_per_sector * sectors_per_rcb; i++) {
+        fwrite(&empty, 1, SPACE_SIZE, device);
+    }
+}
+
 unsigned int write_boot_record(FILE *device, unsigned int sect_size, long device_size) {
     boot_record btr;
-    printf("%li", device_size);
     fseek(device, 0, SEEK_SET);
     strcpy(btr.rcb, SIGNATURE);
     btr.bytes_per_sector = (unsigned short) sect_size;
@@ -20,6 +28,9 @@ unsigned int write_boot_record(FILE *device, unsigned int sect_size, long device
     btr.sectors_per_disk = (unsigned short) (btr.bytes_per_partition / btr.bytes_per_sector);
 
     fwrite(&btr, 1, sizeof(struct boot_record), device);
+
+    clear_rcb( btr.sectors_per_rcb, btr.bytes_per_sector, device);
+
     return btr.sectors_per_rcb;
 }
 
@@ -31,7 +42,7 @@ void write_root_dir(FILE *device, unsigned int sect_size, unsigned int sectors_p
 int hard_format(const char *device_name, unsigned int sect_size) {
     FILE *device;
     long device_size;
-
+    unsigned int sectors_per_rcb;
     device = fopen(device_name, "rb+");
     if(device == NULL){
         print_invalid_device(strerror(errno));
@@ -44,7 +55,7 @@ int hard_format(const char *device_name, unsigned int sect_size) {
         fputc(0, device);
     }
 
-    unsigned int sectors_per_rcb = write_boot_record(device, sect_size, device_size);
+    sectors_per_rcb = write_boot_record(device, sect_size, device_size);
     write_root_dir(device, sect_size, sectors_per_rcb);
 
     fclose(device);

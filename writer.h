@@ -28,8 +28,9 @@ bool prepare_files() {
     return true;
 }
 
+
 bool run() {
-    unsigned long sectors_needed = (unsigned long) ceil(wrt.target_size / wrt.boot.bytes_per_sector);
+    unsigned long sectors_needed = (unsigned long) ceil((wrt.target_size / (double) wrt.boot.bytes_per_sector));
     return true;
 }
 
