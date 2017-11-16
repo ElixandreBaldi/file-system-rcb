@@ -23,7 +23,8 @@ typedef struct writer {
     const char *target_path;
     FILE *device;
     FILE *target;
-    long device_size;
+    const unsigned long device_size;
+    const unsigned long target_size;
     struct boot_record boot;
     struct root_dir;
 } writer;
@@ -31,7 +32,7 @@ typedef struct writer {
 typedef struct navigator {
     const char *device_name;
     FILE *device;
-    long device_size;
+    const unsigned long device_size;
     struct boot_record boot;
     struct root_dir;
 } navigator;

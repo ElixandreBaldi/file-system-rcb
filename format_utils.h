@@ -37,7 +37,7 @@ int hard_format(const char *device_name, unsigned int sect_size) {
         print_invalid_device(strerror(errno));
         return 1;
     }
-    device_size = get_device_size(device);
+    device_size = get_size(device);
 
     while (fgetc (device) != EOF) {
         fseek(device, -1, SEEK_CUR);

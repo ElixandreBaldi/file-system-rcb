@@ -85,7 +85,7 @@ int enter_device(const char *device_name) {
         print_invalid_device(strerror(errno));
         return 1;
     }
-    nav.device_size = get_device_size(nav.device);
+    nav.device_size = get_size(nav.device);
     read_boot_record(nav.boot, nav.device);
     if (!is_valid_boot_record(nav.boot)) {
         print_non_rcbfs_device();

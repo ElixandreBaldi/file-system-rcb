@@ -2,6 +2,7 @@
 #define RCB_FILE_SYSTEM_WRITER_H
 
 #include <stdio.h>
+#include <math.h>
 #include "struct_utils.h"
 
 writer wrt;
@@ -22,14 +23,21 @@ bool prepare_files() {
         print_invalid_file(strerror(errno));
         return false;
     }
+    wrt.device_size = get_size(wrt.device);
+    wrt.target_size = get_size(wrt.target);
+    return true;
+}
+
+bool run() {
+    unsigned long sectors_needed = (unsigned long) ceil(wrt.target_size / wrt.boot.bytes_per_sector);
     return true;
 }
 
 int copy_file(const char *target_path, const char *device_name) {
-    int ret;
+    bool ret;
     wrt.device_name = device_name;
     wrt.target_path = target_path;
-    ret = prepare_files();
+    ret = prepare_files() && run();
     if (!ret) {
         return 1;
     }

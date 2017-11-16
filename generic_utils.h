@@ -9,11 +9,11 @@
 #define RCB_DATA_TABLE 32
 #define SIGNATURE "RCB!"
 
-long get_device_size(FILE *device) {
+long get_size(FILE *stream) {
     long size;
-    fseek(device, 0L, SEEK_END);
-    size = ftell(device);
-    rewind(device);
+    fseek(stream, 0L, SEEK_END);
+    size = ftell(stream);
+    rewind(stream);
 
     return size;
 }
