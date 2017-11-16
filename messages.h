@@ -4,6 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void print_valid_arguments(){
+    printf("Arguments:\n");
+    printf("--format [device]\t\tFormat a device to the RCBFS\n");
+    printf("--enter\t [device]\t\tEnter the device listing files and directories\n");
+    printf("--copy\t [file path] [device] \t\tCopy a disk file to the device\n");
+    printf("--help\t\t\t\t\tDisplay this help message\n");
+}
+
 void print_help() {
     printf("    ____  __________ \n"
                    "   / __ \\/ ____/ __ )\n"
@@ -12,18 +20,12 @@ void print_help() {
                    "/_/ |_|\\____/_____/  \n"
                    "                     \n");
     printf("This is the RCB Filesystem\n\n");
-    printf("Arguments:\n");
-    printf("--format [device]\t\tFormat a device to the RCBFS\n");
-    printf("--enter\t [device]\t\tEnter the device listing files and directories\n");
-    printf("--help\t\t\t\t\tDisplay this help message\n");
+    print_valid_arguments();
 }
 
 void print_error() {
     printf("⛔ Invalid arguments\n\n");
-    printf("Arguments:\n");
-    printf("--format [device]\t\tFormat a device to the RCBFS\n");
-    printf("--enter\t [device]\t\tEnter the device listing files and directories\n");
-    printf("--help\t\t\t\t\tDisplay this help message\n");
+    print_valid_arguments();
 }
 
 void print_invalid_device(char* error) {

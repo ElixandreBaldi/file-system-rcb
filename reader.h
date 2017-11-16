@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "struct_utils.h"
+#include "boot_utils.h"
 
 typedef struct nav{
     const char *device_name;
@@ -13,10 +14,6 @@ typedef struct nav{
 } navigator;
 
 navigator nav;
-
-void read_boot(){
-    fread(&nav.boot, 1, sizeof(nav.boot), nav.device);
-}
 
 bool is_valid_boot_record() {
     if( strcmp(nav.boot.rcb, SIGNATURE) != 0){
@@ -105,7 +102,7 @@ int enter_device(const char *device_name) {
         return 1;
     }
     nav.device_size = get_device_size(nav.device);
-    read_boot();
+    read_boot_record(nav.boot, nav.device);
     if (!is_valid_boot_record()) {
         printf("The device is not on RCBFS. If you want to format it, use the --format option.\n");
         return 1;
