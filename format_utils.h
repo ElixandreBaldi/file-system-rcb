@@ -19,15 +19,12 @@ unsigned int write_boot_record(FILE *device, unsigned int sect_size, long device
     btr.bytes_per_partition = (unsigned int) device_size;
     btr.sectors_per_disk = (unsigned short) (btr.bytes_per_partition / btr.bytes_per_sector);
 
-    //printf("%s", btr.rcb);
-
     fwrite(&btr, 1, sizeof(struct boot_record), device);
     return btr.sectors_per_rcb;
 }
 
 void write_root_dir(FILE *device, unsigned int sect_size, unsigned int sectors_per_rcb){
     root_dir dir;
-    //
     fseek(device, sect_size * (1 + sectors_per_rcb), SEEK_SET);
 }
 

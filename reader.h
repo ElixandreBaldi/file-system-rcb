@@ -2,18 +2,28 @@
 #define RCB_FILE_SYSTEM_READER_H
 
 #include <stdio.h>
+#include "struct_utils.h"
 
 typedef struct nav{
     const char *device_name;
     FILE *device;
     long device_size;
+    struct boot_record boot;
+    struct root_dir;
 } navigator;
 
 navigator nav;
 
+void read_boot(){
+    fread(&nav.boot, 1, sizeof(nav.boot), nav.device);
+}
+
 bool is_valid_boot_record() {
-    //
-    return true;
+    if( strcmp(nav.boot.rcb, SIGNATURE) != 0){
+        return false;
+    }
+    return nav.boot.sectors_per_rcb && nav.boot.bytes_per_partition && nav.boot.entry_directory &&
+           nav.boot.reserved_sectors && nav.boot.sectors_per_disk && nav.boot.bytes_per_sector;
 }
 
 void ls() {
@@ -95,6 +105,7 @@ int enter_device(const char *device_name) {
         return 1;
     }
     nav.device_size = get_device_size(nav.device);
+    read_boot();
     if (!is_valid_boot_record()) {
         printf("The device is not on RCBFS. If you want to format it, use the --format option.\n");
         return 1;
