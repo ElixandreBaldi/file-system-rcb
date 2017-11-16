@@ -1,7 +1,7 @@
 #ifndef RCB_FILE_SYSTEM_BOOT_RECORD_UTILS_H
 #define RCB_FILE_SYSTEM_BOOT_RECORD_UTILS_H
 
-typedef struct boot_record{
+typedef struct boot_record {
     char rcb[4];
     unsigned short bytes_per_sector;
     unsigned short reserved_sectors;
@@ -17,5 +17,23 @@ typedef struct root_dir {
     unsigned short first_cluster;
     unsigned int size_of_file;
 } __attribute__((packed)) root_dir;
+
+typedef struct writer {
+    const char *device_name;
+    const char *target_path;
+    FILE *device;
+    FILE *target;
+    long device_size;
+    struct boot_record boot;
+    struct root_dir;
+} writer;
+
+typedef struct navigator {
+    const char *device_name;
+    FILE *device;
+    long device_size;
+    struct boot_record boot;
+    struct root_dir;
+} navigator;
 
 #endif

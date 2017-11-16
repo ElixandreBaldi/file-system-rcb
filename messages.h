@@ -28,8 +28,12 @@ void print_error() {
     print_valid_arguments();
 }
 
-void print_invalid_device(char* error) {
+void print_invalid_file(char* error) {
     printf("%s\n", error);
+}
+
+void print_invalid_device(char* error) {
+    print_invalid_file(error);
     printf("To see available devices: lsblk -o NAME,TYPE,SIZE,MODEL\n");
 }
 
@@ -47,6 +51,10 @@ void print_navigator_help() {
     printf("rm [dir|file]\t\tRemove a given directory or file\n");
     printf("info\t\t\t\tDisplay the device information\n");
     printf("help\t\t\t\tDisplay this help message\n");
+}
+
+void print_non_rcbfs_device () {
+    printf("The device is not on RCBFS. If you want to format it, use the --format option.\n");
 }
 
 #endif

@@ -5,23 +5,7 @@
 #include "struct_utils.h"
 #include "boot_utils.h"
 
-typedef struct nav{
-    const char *device_name;
-    FILE *device;
-    long device_size;
-    struct boot_record boot;
-    struct root_dir;
-} navigator;
-
 navigator nav;
-
-bool is_valid_boot_record() {
-    if( strcmp(nav.boot.rcb, SIGNATURE) != 0){
-        return false;
-    }
-    return nav.boot.sectors_per_rcb && nav.boot.bytes_per_partition && nav.boot.entry_directory &&
-           nav.boot.reserved_sectors && nav.boot.sectors_per_disk && nav.boot.bytes_per_sector;
-}
 
 void ls() {
     //
@@ -31,11 +15,11 @@ void pwd() {
     //
 }
 
-void cd(const char* target) {
+void cd(const char *target) {
     //
 }
 
-void rm(const char* target) {
+void rm(const char *target) {
     //
 }
 
@@ -61,14 +45,14 @@ void parse_command(const char *command) {
     } else if (strcmp(command_token, "help") == 0) {
         help();
     } else if (strcmp(command_token, "cd") == 0) {
-        input_token = strtok (NULL, " ");
+        input_token = strtok(NULL, " ");
         if (input_token != NULL) {
             cd(input_token);
         } else {
             print_navigator_error();
         }
     } else if (strcmp(command_token, "rm") == 0) {
-        input_token = strtok (NULL, " ");
+        input_token = strtok(NULL, " ");
         if (input_token != NULL) {
             rm(input_token);
         } else {
@@ -97,17 +81,18 @@ int enter_device(const char *device_name) {
     printf("Reading device...\n");
     nav.device_name = device_name;
     nav.device = fopen(device_name, "rb+");
-    if(nav.device == NULL){
+    if (nav.device == NULL) {
         print_invalid_device(strerror(errno));
         return 1;
     }
     nav.device_size = get_device_size(nav.device);
     read_boot_record(nav.boot, nav.device);
-    if (!is_valid_boot_record()) {
-        printf("The device is not on RCBFS. If you want to format it, use the --format option.\n");
+    if (!is_valid_boot_record(nav.boot)) {
+        print_non_rcbfs_device();
         return 1;
     }
     init_nav();
+    fclose(nav.device);
     return 0;
 }
 

@@ -6,7 +6,7 @@
 
 int main(int argc, const char **argv) {
     const char *device_name;
-    const char * target_file;
+    const char *target_file;
 
     if (argc < 2) {
         print_error();
