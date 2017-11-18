@@ -41,7 +41,7 @@ void write_root_dir(FILE *device, unsigned int sect_size, unsigned int sectors_p
     entry.first_cluster = 0x0;
     entry.size_of_file = 0x0;
     fseek(device, posix , SEEK_SET);
-    for(int i = 0; i < 256; i++){
+    for(int i = 0; i < DIR_ENTRY; i++){
         fwrite(&entry, 1, sizeof(struct root_dir), device);
         fseek(device, (posix + (i * 32)), SEEK_SET); // avancar a cada 32 bytes de entrada
     }

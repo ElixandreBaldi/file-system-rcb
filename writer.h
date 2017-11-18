@@ -57,8 +57,17 @@ void allocate_root_dir_for_file(unsigned short first_sector){
     wrt.dir.size_of_file = (unsigned int) wrt.target_size;
     wrt.dir.attribute_of_file = 0x00;
     fseek(wrt.device, (posix - 25) + (i * 32), SEEK_SET);
-    printf("%d\n", posix + (i * 32));
     fwrite(&wrt.dir, 1, sizeof(root_dir), wrt.device);
+}
+
+void allocate_space_data(unsigned short sectors_needed){
+    for(int i = 0; i < sectors_needed; i++) {
+        unsigned char data[wrt.boot.bytes_per_sector];
+        fread(&data, 1, sizeof(data),wrt.target);
+        printf("%s\n",data); // neste caso ja carregamos o conteudo de um setor dentro da variavel, falta apenas escrever na area de dados
+    }
+//    fseek(wrt.device, wrt.boot.bytes_per_sector * ((wrt.boot.sectors_per_rcb + 1) + (DIR_ENTRY / 32)), SEEK_SET); // este eh o calculo para o inicio da area de dados
+
 }
 
 bool run() {
@@ -70,6 +79,7 @@ bool run() {
         spaces = get_free_spaces(sectors_needed, wrt.boot.reserved_sectors);
         allocate_rcb_for_file(spaces, sectors_needed);
         allocate_root_dir_for_file(spaces[0]);
+        allocate_space_data(sectors_needed);
         return transfer();
     } else {
         print_not_enough_space(sectors_needed * wrt.boot.bytes_per_sector, available_pos * wrt.boot.bytes_per_sector);

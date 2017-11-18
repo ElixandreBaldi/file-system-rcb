@@ -13,6 +13,7 @@
 #define RCB_EOF 0xFFFF
 #define SPACE_SIZE 2
 #define BTR_SIZE 16
+#define DIR_ENTRY 256 // decisao do gerente
 
 unsigned long get_size(FILE *stream) {
     unsigned long size;
