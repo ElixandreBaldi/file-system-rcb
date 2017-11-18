@@ -14,7 +14,7 @@ typedef struct boot_record {
 } __attribute__((packed)) boot_record;
 
 typedef struct root_dir {
-    char file_name[24];
+    char file_name[25];
     unsigned short attribute_of_file;
     unsigned short first_cluster;
     unsigned int size_of_file;
@@ -32,7 +32,7 @@ typedef struct writer {
     unsigned long device_size;
     unsigned long target_size;
     struct boot_record boot;
-    struct root_dir;
+    struct root_dir dir;
 } writer;
 
 typedef struct navigator {

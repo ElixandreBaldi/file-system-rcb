@@ -10,7 +10,7 @@
 int clear_rcb( unsigned short sectors_per_rcb, unsigned short bytes_per_sector, FILE *device ){
     unsigned short empty = EMPTY_SPACE;
     fseek(device, bytes_per_sector, SEEK_SET);
-    for( int i = 0; i < bytes_per_sector * sectors_per_rcb; i++) {
+    for( int i = 0; i < RCB_TABLE_SIZE/2; i++) {
         fwrite(&empty, 1, SPACE_SIZE, device);
     }
 }
@@ -34,8 +34,17 @@ unsigned int write_boot_record(FILE *device, unsigned int sect_size, long device
 }
 
 void write_root_dir(FILE *device, unsigned int sect_size, unsigned int sectors_per_rcb){
-    root_dir dir;
-    fseek(device, sect_size * (1 + sectors_per_rcb), SEEK_SET);
+    root_dir entry;
+    unsigned int posix = sect_size * (sectors_per_rcb+1); // movimentacao do ponteiro para o final da tabela RCB
+    memset(entry.file_name, 0, 25);
+    entry.attribute_of_file = 0x8;
+    entry.first_cluster = 0x0;
+    entry.size_of_file = 0x0;
+    fseek(device, posix , SEEK_SET);
+    for(int i = 0; i < 256; i++){
+        fwrite(&entry, 1, sizeof(struct root_dir), device);
+        fseek(device, (posix + (i * 32)), SEEK_SET); // avancar a cada 32 bytes de entrada
+    }
 }
 
 int hard_format(const char *device_name, unsigned int sect_size) {
