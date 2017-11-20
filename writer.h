@@ -39,7 +39,7 @@ void allocate_rcb_for_file(unsigned short *spaces, unsigned short sectors_needed
 }
 
 void allocate_root_dir_for_file(unsigned short first_sector){
-    unsigned int posix = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1) +25);
+    unsigned int position = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1) +25);
     int i;
     for(i = 0; i < DIR_ENTRY; i++){
         unsigned char name[sizeof(wrt.dir.file_name)];
@@ -54,16 +54,16 @@ void allocate_root_dir_for_file(unsigned short first_sector){
 
     for(i = 0; i < DIR_ENTRY; i++) {
         unsigned int value = 0; // verificar o erro da primeira posicao
-        value = seek_rcb(wrt.device, posix + (i * 32));
+        value = seek_rcb(wrt.device, position + (i * 32));
         fflush(wrt.device);
         if(value == EMPTY_ATTR || value == DELETED_ATTR ) break;
     }
-
-    strcpy(wrt.dir.file_name,"teste.txt"); // falta criar a funcao para pegar apenas o nome do arquivo no wrt.target_path
+    const char * filename = last_token(wrt.target_path);
+    strcpy(wrt.dir.file_name, filename); // falta criar a funcao para pegar apenas o nome do arquivo no wrt.target_path
     wrt.dir.first_cluster = first_sector;
     wrt.dir.size_of_file = (unsigned int) wrt.target_size;
     wrt.dir.attribute_of_file = FILE_ATTR;
-    fseek(wrt.device, (posix - 25) + (i * 32), SEEK_SET);
+    fseek(wrt.device, (position - 25) + (i * 32), SEEK_SET);
     fwrite(&wrt.dir, 1, sizeof(root_dir), wrt.device);
 }
 
