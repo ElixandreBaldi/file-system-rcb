@@ -76,6 +76,28 @@ sudo rcbfs -c /home/administrador/arquivo.php /dev/sdc1
 
 Na versão atual do sistema não é possível copiar diretórios inteiros para o RCBFS.
 
+## Exportando um arquivo do dispositivo
+
+Para exportar um arquivo do dispositivo para o disco local é necessário indicar dois parâmetros: O dispositivo e a localização do arquivo no dispositivo. O arquivo será exportado para o diretório onde o comando for executado.
+
+```
+sudo rcbfs --export [dispositivo] [arquivo]
+```
+
+Se o arquivo existir no RBFS e o arquivo puder ser escrito no disco de saída, o mesmo será copiado. Este comando pode incidir nos seguintes erros:
+
+- O dispositivo não existe ou o usuário não tem permissão para acessá-lo.
+
+- O dispositivo não é um dispositivo RCBFS válido ou não possui o arquivo especificado.
+
+Exemplo:
+
+```
+sudo rcbfs -x /dev/sdc1 /arquivos/teste.png
+```
+
+Na versão atual do sistema não é possível copiar diretórios inteiros do RCBFS.
+
 ## Acessando o dispositivo
 
 Acessar o dispositivo é muito simples e comporta diversas funcionalidades. Para acessar um dispositivo:
@@ -92,7 +114,15 @@ Ao acessar o dispositivo será exibido um indicador de diálogo `rcbfs>`, que in
 
 - O dispositivo não é um dispositivo RCBFS válido (é necessário formatá-lo previamente).
 
-Se não houver erro, o dispositivo está aberto e preparado para novos comandos. Os comandos internos possuem uma breve semelhança com os comandos Unix. São eles:
+Se não houver erro, o dispositivo está aberto e preparado para novos comandos.
+
+Exemplo:
+
+```
+sudo rcbfs -e /dev/sdc1
+```
+
+Os comandos internos possuem uma breve semelhança com os comandos Unix. São eles:
 
 ### Ajuda
 
@@ -132,6 +162,22 @@ Para saber onde se está posicionado no sistema de arquivos, pode-se digitar `pw
 
 ```
 rcbfs> pwd
+```
+
+### Criando um diretório
+
+Caso esteja no diretório raiz, é possível criar um diretório. Para isso, utilize o comando `mkdir` como segue:
+
+```
+mkdir [diretório]
+```
+
+Caso o diretório não exista e seja possível criar um novo, este será acessível através do comando `cd` listado a seguir.
+
+Exemplo:
+
+```
+rcbfs> mkdir folder
 ```
 
 ### Acessando um diretório
