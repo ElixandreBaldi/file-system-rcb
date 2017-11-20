@@ -74,6 +74,8 @@ Exemplo:
 sudo rcbfs -c /home/administrador/arquivo.php /dev/sdc1
 ```
 
+Na versão atual do sistema não é possível copiar diretórios inteiros para o RCBFS.
+
 ## Acessando o dispositivo
 
 Acessar o dispositivo é muito simples e comporta diversas funcionalidades. Para acessar um dispositivo:
@@ -81,6 +83,8 @@ Acessar o dispositivo é muito simples e comporta diversas funcionalidades. Para
 ```
 sudo rcbfs --enter [dispositivo]
 ```
+
+Substituindo `[dispositivo]` pelo caminho para o dispositivo no sistema.
 
 Ao acessar o dispositivo será exibido um indicador de diálogo `rcbfs>`, que indica que o dispositivo foi acessado com êxito e está aguardando comandos. Contudo o comando de acesso pode incidir em erro se:
 
@@ -98,6 +102,22 @@ Para listar os comandos disponívels, basta digitar `help`. Este comando irá ex
 rcbfs> help
 ```
 
+### Informações do dispositivo
+
+Para exibir informações acerca do dispositivo que se está navegando, basta digitar `info`. Este comando irá exibir informações como o nome do dispositivo e a capacidade do mesmo.
+
+```
+rcbfs> info
+```
+
+### Saindo do navegador do sistema de arquivos
+
+Para sair da navegação e terminar o programa, basta digitar `exit`.
+
+```
+rcbfs> exit
+```
+
 ### Listando um diretório
 
 Uma vez acessado o dispositivo, o sistema estará posicionado no diretório raiz do sistema. Neste ponto, pode-se listar os diretórios e arquivos presentes através do comando `ls`.
@@ -113,3 +133,47 @@ Para saber onde se está posicionado no sistema de arquivos, pode-se digitar `pw
 ```
 rcbfs> pwd
 ```
+
+### Acessando um diretório
+
+Dada uma listagem de diretório, pode-se acessar o diretório seguinte. Para isso basta entrar o seguinte comando:
+
+```
+cd [diretório]
+```
+
+Substituindo `[diretório]` pela entrada desejada.
+
+Se a entrada existir e for um diretório presente no diretório atual, o sistema de arquivos estará apontado para o mesmo. Note que na versão atual do sistema, só há dois níveis de diretórios (raiz e um nível seguinte).
+
+> Atenção: Na versão atual do sistema, todos os caminhos são relativos ao diretório atual. Não utilize caminhos absolutos.
+
+Exemplo:
+
+```
+rcbfs> cd arquivos
+```
+
+Para voltar ao diretório anterior utilize `..` (dois pontos) como nome da entrada. Isso não é possível no diretório raiz.
+
+### Removendo um arquivo ou diretório
+
+Para remover um arquivo ou diretório do sistema de arquivos, basta digitar o seguinte comando:
+
+```
+rm [diretório|arquivo]
+```
+
+Substituindo `[diretório|arquivo]` pela entrada desejada.
+
+Se a entrada existir, a mesma será removida.
+
+> Atenção: Na versão atual do sistema, todos os caminhos são relativos ao diretório atual. Não utilize caminhos absolutos.
+
+Exemplo:
+
+```
+rcbfs> rm index.js
+```
+
+Esta ação não pode ser desfeita.
