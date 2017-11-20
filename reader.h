@@ -49,7 +49,6 @@ void rm(const char *target) {
         fread(&name, sizeof(name), 1, nav.device);
         printf("%s\n", name);
         if (strcmp((const char *) name, target) == 0) {
-            printf("ENCONTREI\n");
             unsigned int type;
             unsigned short first_sector, sector_on_table, current_position;
             fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
@@ -64,11 +63,9 @@ void rm(const char *target) {
                     current_position = navigate(nav.boot.bytes_per_sector + j, nav.device);
                     fseek(nav.device, nav.boot.bytes_per_sector + j - 2, SEEK_SET);
                     if (current_position != EMPTY_SPACE && current_position != RCB_EOF) {
-                        printf("Current position: %hu\n", current_position);
                         j += 2;
                         fwrite(&free, sizeof(free), 1, nav.device);
                     } else {
-                        printf("Current position: %hu\n", current_position);
                         fwrite(&free, sizeof(free), 1, nav.device);
                         break;
                     }
