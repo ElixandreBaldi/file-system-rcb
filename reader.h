@@ -49,7 +49,6 @@ void mkdir(const char *target) {
     unsigned int available_pos = free_positions(nav.boot.reserved_sectors);
     unsigned short *spaces;
     unsigned int position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1) + 25);
-    unsigned short temp;
     if (available_pos >= 1) {
         spaces = get_free_spaces(1, nav.boot.reserved_sectors);
         allocate_rcb_for_file(spaces, 1, nav.device, nav.boot.bytes_per_sector);
@@ -60,7 +59,7 @@ void mkdir(const char *target) {
             fflush(nav.device);
             if(value == EMPTY_ATTR || value == DELETED_ATTR ) break;
         }
-        strcpy(nav.dir.file_name,"pasta");
+        strcpy(nav.dir.file_name,target);
         nav.dir.first_cluster = spaces[0];
         nav.dir.size_of_file = 0;
         nav.dir.attribute_of_file = DIRECTORY_ATTR;

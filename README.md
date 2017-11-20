@@ -44,7 +44,7 @@ Todos os diretórios da partição terá a seguinte tabela para cada entrada.
 
 | Offset (em bytes) | Tamanho (em bytes) | Descrição |
 | - | - | - |
-| 0 | 24 | Nome do arquivo, em que os 22 primeiros caracteres são o nome e os três ultimos a extenção. |
+| 0 | 24 | Nome do arquivo. |
 | 25 | 1 | Atributo do arquivo, de acordo com a tabela abaixo. |
 | 26 | 2 | Identificação do primeiro cluster do arquivo. |
 | 28 | 4 | Tamanho do arquivo em bytes. |
