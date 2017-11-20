@@ -13,7 +13,7 @@
 #define RCB_EOF 0xFFFF
 #define SPACE_SIZE 2
 #define BTR_SIZE 16
-#define DIR_ENTRY 256
+#define DIR_ENTRY 512
 #define ENTRY_SIZE 32
 #define FILE_ATTR 0x00
 #define DIRECTORY_ATTR 0x01
@@ -47,6 +47,14 @@ unsigned int parse_sect(unsigned int sect_size) {
     }
 
     return sect_size;
+
+}
+
+unsigned int seek_rcb(FILE *device, unsigned int posix){
+    unsigned int value;
+    fseek(device, (posix), SEEK_SET);
+    fread(&value, 1, 1, device);
+    return value;
 }
 
 #endif

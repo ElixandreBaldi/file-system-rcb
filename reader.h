@@ -8,7 +8,13 @@
 navigator nav;
 
 void ls() {
-    //
+    char *current = nav.current_dir;
+    char *dest = (char *) current[1];
+    if (dest == NULL) {
+        printf("root");
+    } else {
+        printf("%s", dest);
+    }
 }
 
 void pwd() {
@@ -65,6 +71,8 @@ void parse_command(const char *command) {
 
 void init_nav() {
     char command[255];
+    nav.current_dir = malloc(sizeof(char) * 1);
+    strcpy(nav.current_dir, "/");
     do {
         printf("rcbfs> ");
         scanf("%s", command);
@@ -86,7 +94,7 @@ int enter_device(const char *device_name) {
         return 1;
     }
     nav.device_size = get_size(nav.device);
-    read_boot_record(nav.boot, nav.device);
+    nav.boot = read_boot_record(nav.boot, nav.device);
     if (!is_valid_boot_record(nav.boot)) {
         print_non_rcbfs_device();
         return 1;

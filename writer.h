@@ -43,8 +43,7 @@ void allocate_root_dir_for_file(unsigned short first_sector){
     int i;
     for(i = 0; i < DIR_ENTRY; i++) {
         unsigned int value;
-        fseek(wrt.device, (posix + (i * 32)), SEEK_SET);
-        fread(&value, 1, 1, wrt.device);
+        value = seek_rcb(wrt.device, posix + (i * 32));
         if(value == 0x08) break;
     }
 
@@ -63,7 +62,6 @@ bool allocate_space_data(unsigned short sectors_needed, unsigned short *spaces){
         unsigned int checker;
         fread(&data, 1, sizeof(data),wrt.target);
         fseek(wrt.device,data_position + ((spaces[i]+1)) * wrt.boot.bytes_per_sector,SEEK_SET);
-        printf("%u\n",data_position + ((spaces[i]+1)) * wrt.boot.bytes_per_sector);
         checker = (unsigned int) fwrite(&data, 1, sizeof(data), wrt.device);
         if(checker != wrt.boot.bytes_per_sector) return false;
     }

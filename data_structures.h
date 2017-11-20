@@ -40,7 +40,8 @@ typedef struct navigator {
     FILE *device;
     unsigned long device_size;
     struct boot_record boot;
-    struct root_dir;
+    struct root_dir dir;
+    char *current_dir;
 } navigator;
 
 #endif
