@@ -50,8 +50,18 @@ unsigned int parse_sect(unsigned int sect_size) {
     return sect_size;
 }
 
-char* last_token(char* content) {
-    //
+const char* last_token(const char* content) {
+    int divider_index = -1;
+    int reslen = 0;
+    for (int i = (int) (strlen(content) - 1); i >= 0; i--) {
+        reslen++;
+        if (content[i] == '/') {
+            divider_index = i;
+            break;
+        }
+    }
+
+    return &content[divider_index + 1];
 }
 
 unsigned int seek_rcb(FILE *device, unsigned int posix){
