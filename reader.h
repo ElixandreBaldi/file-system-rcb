@@ -13,13 +13,15 @@ void ls() {
     char *current = nav.current_dir;
     char *dest = (char *) current[1];
     unsigned int pointer_position;
+    unsigned int size;
     if (dest == NULL) {
         pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
+        size = DIR_ENTRY;
     } else {
         pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1 + DIR_ENTRY));
+        size = nav.boot.bytes_per_sector;
     }
-
-    for(int i = 0; i < DIR_ENTRY; i++){
+    for(int i = 0; i < size / 32; i++){
         unsigned int type;
         unsigned char name[sizeof(nav.dir.file_name)];
         fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
@@ -27,7 +29,9 @@ void ls() {
         if( type != DELETED_ATTR && type != EMPTY_ATTR){
             fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
             fread(&name, 1, sizeof(name), nav.device);
-            printf("%s\n", name);
+            if(strcmp((const char *) name, "") != 0) {
+                printf("%s\n", name);
+            }
         }
     }
 }
@@ -37,14 +41,22 @@ void pwd() {
 }
 
 void cd(const char *target) {
-    //
+    unsigned int pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
+    for(int i = 0; i < DIR_ENTRY - 1; i++) {
+        unsigned char name[sizeof(nav.dir.file_name)];
+        unsigned int type;
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&name, sizeof(name), 1, nav.device);
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + 25, SEEK_SET);
+        fread(&type, sizeof(type), 1, nav.device);
+        if ((strcmp((const char *) name, target) == 0) && (type == DIRECTORY_ATTR)) {
+            strcat(nav.current_dir, target);
+            printf("%s\n", nav.current_dir);
+        }
+    }
 }
 
 void mkdir(const char *target) {
-//    if(dir_is_full()) {
-//        print_dir_is_full();
-//        return;
-//    }
     read_rcb(nav.device, nav.boot.bytes_per_sector);
     unsigned int available_pos = free_positions(nav.boot.reserved_sectors);
     unsigned short *spaces;
@@ -64,8 +76,8 @@ void mkdir(const char *target) {
         nav.dir.size_of_file = 0;
         nav.dir.attribute_of_file = DIRECTORY_ATTR;
         fseek(nav.device, (position - 25) + (i * 32), SEEK_SET);
-        printf("%u\n",(position - 25) + (i * 32));
         fwrite(&nav.dir, 1, sizeof(root_dir), nav.device);
+        fflush(nav.device);
     }
 }
 
