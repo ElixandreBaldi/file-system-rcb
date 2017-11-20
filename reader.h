@@ -39,6 +39,10 @@ void cd(const char *target) {
     //
 }
 
+void mkdir(const char *target) {
+
+}
+
 void rm(const char *target) {
     unsigned int pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
     unsigned short deleted = DELETED_ATTR;
@@ -47,7 +51,6 @@ void rm(const char *target) {
         unsigned char name[sizeof(nav.dir.file_name)];
         fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
         fread(&name, sizeof(name), 1, nav.device);
-        printf("%s\n", name);
         if (strcmp((const char *) name, target) == 0) {
             unsigned int type;
             unsigned short first_sector, sector_on_table, current_position;

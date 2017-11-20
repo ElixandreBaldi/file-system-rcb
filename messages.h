@@ -75,4 +75,12 @@ void print_insufficient_sect_size(unsigned int actual_size) {
     printf("Actual sector size: %d\n", actual_size);
 }
 
+void print_file_name_repetead(){
+    printf("This name already used!\n");
+}
+
+void print_dir_is_full() {
+    printf("This directory is full!\n");
+}
+
 #endif

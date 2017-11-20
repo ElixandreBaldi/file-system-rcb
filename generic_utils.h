@@ -56,8 +56,6 @@ unsigned int seek_rcb(FILE *device, unsigned int posix){
     unsigned int value;
     fseek(device, posix, SEEK_SET);
     fread(&value, 1, 1, device);
-    printf("Dentro: %d",value);
-    printf(" Posix: %d\n",posix);
     return value;
 }
 

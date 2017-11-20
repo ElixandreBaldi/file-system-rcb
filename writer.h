@@ -41,11 +41,22 @@ void allocate_rcb_for_file(unsigned short *spaces, unsigned short sectors_needed
 void allocate_root_dir_for_file(unsigned short first_sector){
     unsigned int posix = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1) +25);
     int i;
+    for(i = 0; i < DIR_ENTRY; i++){
+        unsigned char name[sizeof(wrt.dir.file_name)];
+        fseek(wrt.device, posix + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&name, sizeof(name), 1, wrt.device);
+        if (strcmp((const char *) name, wrt.target_path) == 0) {
+            break;
+        }
+        print_file_name_repetead();
+        return;
+    }
+
     for(i = 0; i < DIR_ENTRY; i++) {
         unsigned int value = 0; // verificar o erro da primeira posicao
         value = seek_rcb(wrt.device, posix + (i * 32));
         fflush(wrt.device);
-        if(value == EMPTY_ATTR) break;
+        if(value == EMPTY_ATTR || value == DELETED_ATTR ) break;
     }
 
     strcpy(wrt.dir.file_name,"teste.txt"); // falta criar a funcao para pegar apenas o nome do arquivo no wrt.target_path
