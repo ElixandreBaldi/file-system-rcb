@@ -5,6 +5,7 @@
 #include "data_structures.h"
 #include "boot_utils.h"
 #include "rcb_utils.h"
+#include "writer.h"
 
 navigator nav;
 
@@ -40,7 +41,33 @@ void cd(const char *target) {
 }
 
 void mkdir(const char *target) {
-
+//    if(dir_is_full()) {
+//        print_dir_is_full();
+//        return;
+//    }
+    read_rcb(nav.device, nav.boot.bytes_per_sector);
+    unsigned int available_pos = free_positions(nav.boot.reserved_sectors);
+    unsigned short *spaces;
+    unsigned int position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1) + 25);
+    unsigned short temp;
+    if (available_pos >= 1) {
+        spaces = get_free_spaces(1, nav.boot.reserved_sectors);
+        allocate_rcb_for_file(spaces, 1, nav.device, nav.boot.bytes_per_sector);
+        int i;
+        for(i = 0; i < DIR_ENTRY; i++) {
+            unsigned int value = 0;
+            value = seek_rcb(nav.device, position + (i * 32));
+            fflush(nav.device);
+            if(value == EMPTY_ATTR || value == DELETED_ATTR ) break;
+        }
+        strcpy(nav.dir.file_name,"pasta");
+        nav.dir.first_cluster = spaces[0];
+        nav.dir.size_of_file = 0;
+        nav.dir.attribute_of_file = DIRECTORY_ATTR;
+        fseek(nav.device, (position - 25) + (i * 32), SEEK_SET);
+        printf("%u\n",(position - 25) + (i * 32));
+        fwrite(&nav.dir, 1, sizeof(root_dir), nav.device);
+    }
 }
 
 void rm(const char *target) {
@@ -113,6 +140,13 @@ void parse_command(const char *command) {
         input_token = strtok(NULL, " ");
         if (input_token != NULL) {
             rm(input_token);
+        } else {
+            print_navigator_error();
+        }
+    } else if (strcmp(command_token, "mkdir") == 0) {
+        input_token = strtok(NULL, " ");
+        if (input_token != NULL) {
+            mkdir(input_token);
         } else {
             print_navigator_error();
         }

@@ -54,4 +54,8 @@ unsigned short navigate(unsigned int value, FILE *device){
     return position;
 }
 
+unsigned int dir_status(const char *dir) {
+ //
+}
+
 #endif

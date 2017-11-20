@@ -29,37 +29,36 @@ bool prepare_files() {
     return true;
 }
 
-void allocate_rcb_for_file(unsigned short *spaces, unsigned short sectors_needed) {
+void allocate_rcb_for_file(unsigned short *spaces, unsigned short sectors_needed, FILE *device, unsigned short bytes_per_sector) {
     unsigned short i;
     for (i = 0; i < sectors_needed - 1; i++) {
         write_pos(spaces[i], (unsigned short) (spaces[i] + 1));
     }
     write_pos(spaces[i], RCB_EOF);
-    sync_rcb(wrt.device, wrt.boot.bytes_per_sector);
+    sync_rcb(device, bytes_per_sector);
 }
 
 void allocate_root_dir_for_file(unsigned short first_sector){
-    unsigned int posix = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1) +25);
+    unsigned int posix = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1) + 25);
     int i;
     for(i = 0; i < DIR_ENTRY; i++){
         unsigned char name[sizeof(wrt.dir.file_name)];
         fseek(wrt.device, posix + (i * ENTRY_SIZE), SEEK_SET);
         fread(&name, sizeof(name), 1, wrt.device);
         if (strcmp((const char *) name, wrt.target_path) == 0) {
-            break;
+            print_file_name_repetead();
+            return;
         }
-        print_file_name_repetead();
-        return;
     }
 
     for(i = 0; i < DIR_ENTRY; i++) {
-        unsigned int value = 0; // verificar o erro da primeira posicao
+        unsigned int value = 0;
         value = seek_rcb(wrt.device, posix + (i * 32));
         fflush(wrt.device);
         if(value == EMPTY_ATTR || value == DELETED_ATTR ) break;
     }
 
-    strcpy(wrt.dir.file_name,"teste.txt"); // falta criar a funcao para pegar apenas o nome do arquivo no wrt.target_path
+    strcpy(wrt.dir.file_name,"pasta"); // falta criar a funcao para pegar apenas o nome do arquivo no wrt.target_path
     wrt.dir.first_cluster = first_sector;
     wrt.dir.size_of_file = (unsigned int) wrt.target_size;
     wrt.dir.attribute_of_file = FILE_ATTR;
@@ -87,7 +86,7 @@ bool run() {
     unsigned short *spaces;
     if (available_pos >= sectors_needed) {
         spaces = get_free_spaces(sectors_needed, wrt.boot.reserved_sectors);
-        allocate_rcb_for_file(spaces, sectors_needed);
+        allocate_rcb_for_file(spaces, sectors_needed, wrt.device, wrt.boot.bytes_per_sector);
         allocate_root_dir_for_file(spaces[0]);
         return allocate_space_data(sectors_needed, spaces);
     } else {
