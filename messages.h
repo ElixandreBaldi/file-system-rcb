@@ -6,10 +6,11 @@
 
 void print_valid_arguments() {
     printf("Arguments:\n");
-    printf("--format [device]\t\tFormat a device to the RCBFS\n");
-    printf("--enter\t [device]\t\tEnter the device listing files and directories\n");
+    printf("--format [device]\t\t\t\t\tFormat a device to the RCBFS\n");
+    printf("--enter\t [device]\t\t\t\t\tEnter the device listing files and directories\n");
     printf("--copy\t [file path] [device] \t\tCopy a disk file to the device\n");
-    printf("--help\t\t\t\t\tDisplay this help message\n");
+    printf("--export [device] [location] \t\tExport a file from the device to the local storage\n");
+    printf("--help\t\t\t\t\t\t\t\tDisplay this help message\n");
 }
 
 void print_help() {
@@ -49,6 +50,7 @@ void print_navigator_help() {
     printf("ls\t\t\t\t\tList the current directory\n");
     printf("cd [dir]\t\t\tEnter a given directory\n");
     printf("rm [dir|file]\t\tRemove a given directory or file\n");
+    printf("mkdir [dir]\t\t\tCreate a new directory\n");
     printf("info\t\t\t\tDisplay the device information\n");
     printf("help\t\t\t\tDisplay this help message\n");
 }

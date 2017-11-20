@@ -70,8 +70,19 @@ int hard_format(const char *device_name, unsigned int sect_size) {
     return 0;
 }
 
-int soft_format(const char *device_name, int size) {
-    //
+int soft_format(const char *device_name, unsigned int sect_size) {
+    FILE *device;
+    long device_size;
+    unsigned int sectors_per_rcb;
+    device = fopen(device_name, "rb+");
+    if(device == NULL){
+        print_invalid_device(strerror(errno));
+        return 1;
+    }
+    device_size = get_size(device);
+    sectors_per_rcb = write_boot_record(device, sect_size, device_size);
+    write_root_dir(device, sect_size, sectors_per_rcb);
+    fclose(device);
     return 0;
 }
 

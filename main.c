@@ -24,6 +24,15 @@ int main(int argc, const char **argv) {
         device_name = argv[2];
         return format_device(device_name);
     }
+    if ((strcmp(argv[1], "--export") == 0) || (strcmp(argv[1], "-x") == 0)) {
+        if (argc < 4) {
+            print_error();
+            return 1;
+        }
+        device_name = argv[2];
+        target_file = argv[3];
+        return export_file(device_name, target_file);
+    }
     if ((strcmp(argv[1], "--enter") == 0) || (strcmp(argv[1], "-e") == 0)) {
         if (argc < 3) {
             print_error();
