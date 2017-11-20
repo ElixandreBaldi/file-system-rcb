@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "data_structures.h"
 #include "boot_utils.h"
+#include "rcb_utils.h"
 
 navigator nav;
 
@@ -20,10 +21,10 @@ void ls() {
     for(int i = 0; i < DIR_ENTRY; i++){
         unsigned int type;
         unsigned char name[sizeof(nav.dir.file_name)];
-        fseek(nav.device, pointer_position + (i * 32) + 25, SEEK_SET);
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
         fread(&type, 1, 1, nav.device);
         if( type != DELETED_ATTR && type != EMPTY_ATTR){
-            fseek(nav.device, pointer_position + (i * 32), SEEK_SET);
+            fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
             fread(&name, 1, sizeof(name), nav.device);
             printf("%s\n", name);
         }
@@ -40,15 +41,49 @@ void cd(const char *target) {
 
 void rm(const char *target) {
     unsigned int pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
-
-//    for (int i = 0; i < DIR_ENTRY; ++i) {
-//
-//    }
+    unsigned short deleted = DELETED_ATTR;
+    unsigned short free = EMPTY_SPACE;
+    for(int i = 0; i < DIR_ENTRY - 1; i++) {
+        unsigned char name[sizeof(nav.dir.file_name)];
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&name, sizeof(name), 1, nav.device);
+        printf("%s\n", name);
+        if (strcmp((const char *) name, target) == 0) {
+            printf("ENCONTREI\n");
+            unsigned int type;
+            unsigned short first_sector, sector_on_table, current_position;
+            fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
+            fread(&type, 1, 1, nav.device);
+            if (type == FILE_ATTR) {
+                fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + FIRST_CLUSTER_POSITION, SEEK_SET);
+                fread(&first_sector, SPACE_SIZE, 1, nav.device);
+                fseek(nav.device, nav.boot.bytes_per_sector + first_sector, SEEK_SET);
+                fread(&sector_on_table, SPACE_SIZE, 1, nav.device);
+                unsigned int j = 0;
+                while (true) {
+                    current_position = navigate(nav.boot.bytes_per_sector + j, nav.device);
+                    fseek(nav.device, nav.boot.bytes_per_sector + j - 2, SEEK_SET);
+                    if (current_position != EMPTY_SPACE && current_position != RCB_EOF) {
+                        printf("Current position: %hu\n", current_position);
+                        j += 2;
+                        fwrite(&free, sizeof(free), 1, nav.device);
+                    } else {
+                        printf("Current position: %hu\n", current_position);
+                        fwrite(&free, sizeof(free), 1, nav.device);
+                        break;
+                    }
+                }
+            }
+            fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
+            fwrite(&deleted, DELETED_ATTR, 1, nav.device);
+        }
+    }
 }
 
 void info() {
     printf("Device: %s\n", nav.device_name);
     printf("Device size: %li\n", nav.device_size);
+    printf("Sector size: %u\n", nav.boot.bytes_per_sector);
 }
 
 void help() {
@@ -86,13 +121,13 @@ void parse_command(const char *command) {
     }
 }
 
-void init_nav() {
+void init_nav(const char *device_name) {
     char command[255];
     nav.current_dir = malloc(sizeof(char) * 1);
     strcpy(nav.current_dir, "/");
     do {
         printf("rcbfs> ");
-        scanf("%s", command);
+        scanf("%[^\n]s",command);
         getchar();
         if (strcmp(command, "exit") == 0) {
             break;
@@ -116,7 +151,7 @@ int enter_device(const char *device_name) {
         print_non_rcbfs_device();
         return 1;
     }
-    init_nav();
+    init_nav(device_name);
     fclose(nav.device);
     return 0;
 }

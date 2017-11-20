@@ -47,4 +47,11 @@ void sync_rcb(FILE *device, unsigned short bytes_per_sector) {
     fwrite(&rcb_tbl, 1, sizeof(rcb_tbl), device);
 }
 
+unsigned short navigate(unsigned int value, FILE *device){
+    unsigned short position;
+    fseek(device, value , SEEK_SET);
+    fread(&position, SPACE_SIZE, 1, device);
+    return position;
+}
+
 #endif

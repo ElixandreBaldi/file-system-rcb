@@ -20,6 +20,8 @@
 #define HIDDEN_ATTR 0x03
 #define DELETED_ATTR 0x07
 #define EMPTY_ATTR 0x08
+#define TYPE_POSITION 25
+#define FIRST_CLUSTER_POSITION 26
 
 
 unsigned long get_size(FILE *stream) {
