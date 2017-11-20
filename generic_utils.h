@@ -50,6 +50,10 @@ unsigned int parse_sect(unsigned int sect_size) {
     return sect_size;
 }
 
+char* last_token(char* content) {
+    //
+}
+
 unsigned int seek_rcb(FILE *device, unsigned int posix){
     unsigned int value;
     fseek(device, posix, SEEK_SET);
