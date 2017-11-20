@@ -10,15 +10,28 @@ navigator nav;
 void ls() {
     char *current = nav.current_dir;
     char *dest = (char *) current[1];
+    unsigned int pointer_position;
     if (dest == NULL) {
-        printf("root");
+        pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
     } else {
-        printf("%s", dest);
+        pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1 + DIR_ENTRY));
+    }
+
+    for(int i = 0; i < DIR_ENTRY; i++){
+        unsigned int type;
+        unsigned char name[sizeof(nav.dir.file_name)];
+        fseek(nav.device, pointer_position + (i * 32) + 25, SEEK_SET);
+        fread(&type, 1, 1, nav.device);
+        if( type != DELETED_ATTR && type != EMPTY_ATTR){
+            fseek(nav.device, pointer_position + (i * 32), SEEK_SET);
+            fread(&name, 1, sizeof(name), nav.device);
+            printf("%s\n", name);
+        }
     }
 }
 
 void pwd() {
-    //
+    printf("%s\n",nav.current_dir);
 }
 
 void cd(const char *target) {
@@ -26,7 +39,11 @@ void cd(const char *target) {
 }
 
 void rm(const char *target) {
-    //
+    unsigned int pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
+
+//    for (int i = 0; i < DIR_ENTRY; ++i) {
+//
+//    }
 }
 
 void info() {

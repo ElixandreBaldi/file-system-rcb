@@ -42,9 +42,10 @@ void allocate_root_dir_for_file(unsigned short first_sector){
     unsigned int posix = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1) +25);
     int i;
     for(i = 0; i < DIR_ENTRY; i++) {
-        unsigned int value;
+        unsigned int value = 0; // verificar o erro da primeira posicao
         value = seek_rcb(wrt.device, posix + (i * 32));
-        if(value == 0x08) break;
+        fflush(wrt.device);
+        if(value == EMPTY_ATTR) break;
     }
 
     strcpy(wrt.dir.file_name,"teste.txt"); // falta criar a funcao para pegar apenas o nome do arquivo no wrt.target_path

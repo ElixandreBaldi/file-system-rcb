@@ -19,6 +19,7 @@
 #define DIRECTORY_ATTR 0x01
 #define HIDDEN_ATTR 0x03
 #define DELETED_ATTR 0x07
+#define EMPTY_ATTR 0x08
 
 
 unsigned long get_size(FILE *stream) {
@@ -47,13 +48,14 @@ unsigned int parse_sect(unsigned int sect_size) {
     }
 
     return sect_size;
-
 }
 
 unsigned int seek_rcb(FILE *device, unsigned int posix){
     unsigned int value;
-    fseek(device, (posix), SEEK_SET);
+    fseek(device, posix, SEEK_SET);
     fread(&value, 1, 1, device);
+    printf("Dentro: %d",value);
+    printf(" Posix: %d\n",posix);
     return value;
 }
 
