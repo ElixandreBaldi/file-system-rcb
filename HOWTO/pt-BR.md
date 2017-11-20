@@ -12,6 +12,16 @@ Para utilizar o sistema de arquivos RCB é necessário utilizar o software de ac
 
 Entre outros...
 
+## Buscando ajuda
+
+Para listar uma breve ajuda do sistema, pode-se digitar:
+
+```
+rcbfs --help
+```
+
+Este comando irá listar os comandos a seguir, com um nível mínimo de detalhes.
+
 ## Formatando um dispositivo
 
 Para formatar um dispositivo é necessário executar o seguinte comando como super usuário (`root`):
@@ -81,3 +91,25 @@ Ao acessar o dispositivo será exibido um indicador de diálogo `rcbfs>`, que in
 Se não houver erro, o dispositivo está aberto e preparado para novos comandos. Os comandos internos possuem uma breve semelhança com os comandos Unix. São eles:
 
 ### Ajuda
+
+Para listar os comandos disponívels, basta digitar `help`. Este comando irá exibir os comandos internos do sistema de arquivos de forma resumida.
+
+```
+rcbfs> help
+```
+
+### Listando um diretório
+
+Uma vez acessado o dispositivo, o sistema estará posicionado no diretório raiz do sistema. Neste ponto, pode-se listar os diretórios e arquivos presentes através do comando `ls`.
+
+```
+rcbfs> ls
+```
+
+### Exibindo a localização atual
+
+Para saber onde se está posicionado no sistema de arquivos, pode-se digitar `pwd`. Este comando irá mostrar em qual pasta o usuário está. O diretório raiz é representado por uma barra simples `/`.
+
+```
+rcbfs> pwd
+```
