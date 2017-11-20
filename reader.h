@@ -121,4 +121,8 @@ int enter_device(const char *device_name) {
     return 0;
 }
 
+int export_file(const char *device_name, const char *target_path) {
+    //
+}
+
 #endif
