@@ -206,8 +206,43 @@ int enter_device(const char *device_name) {
     return 0;
 }
 
+int seek_and_transfer(const char *target, FILE *destiny) {
+    unsigned int pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
+    for (int i = 0; i < DIR_ENTRY - 1; i++) {
+        unsigned char name[sizeof(nav.dir.file_name)];
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&name, sizeof(name), 1, nav.device);
+        if (strcmp((const char *) name, target) == 0) {
+            return 0;
+        }
+    }
+
+    print_no_such_file();
+    return 1;
+}
+
 int export_file(const char *device_name, const char *target_path) {
-    //
+    nav.device = fopen(device_name, "rb+");
+    if (nav.device == NULL) {
+        print_invalid_device(strerror(errno));
+        return 1;
+    }
+    nav.boot = read_boot_record(nav.boot, nav.device);
+    if (!is_valid_boot_record(nav.boot)) {
+        print_non_rcbfs_device();
+        return 1;
+    }
+    FILE *destiny = fopen(last_token(target_path), "wb");
+    if (destiny == NULL) {
+        print_invalid_file(strerror(errno));
+        fclose(nav.device);
+        return 1;
+    }
+    int ret = seek_and_transfer(target_path, destiny);
+    fclose(destiny);
+    fclose(nav.device);
+
+    return ret;
 }
 
 #endif

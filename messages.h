@@ -83,4 +83,8 @@ void print_dir_is_full() {
     printf("This directory is full!\n");
 }
 
+void print_no_such_file() {
+    printf("No such file in device.\n");
+}
+
 #endif
