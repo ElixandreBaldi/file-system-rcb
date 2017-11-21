@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "CannotResolve"
 #ifndef RCB_FILE_SYSTEM_WRITER_H
 #define RCB_FILE_SYSTEM_WRITER_H
 
@@ -5,6 +7,8 @@
 #include <math.h>
 #include "data_structures.h"
 #include "rcb_utils.h"
+#include "reader.h"
+
 
 writer wrt;
 
@@ -38,9 +42,12 @@ void allocate_rcb_for_file(unsigned short *spaces, unsigned short sectors_needed
     sync_rcb(device, bytes_per_sector);
 }
 
-void allocate_root_dir_for_file(unsigned short first_sector){
+void allocate_root_dir_for_file(unsigned short first_sector, int pointer){
     unsigned int position = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1) +25);
     int i;
+    if(strcmp(wrt.current_dir,"/") != 0) {
+        position = (unsigned int) (pointer + 25);
+    }
     for(i = 0; i < DIR_ENTRY; i++){
         unsigned char name[sizeof(wrt.dir.file_name)];
         fseek(wrt.device, position + (i * ENTRY_SIZE), SEEK_SET);
@@ -52,7 +59,7 @@ void allocate_root_dir_for_file(unsigned short first_sector){
     }
 
     for(i = 0; i < DIR_ENTRY; i++) {
-        unsigned int value = 0; // verificar o erro da primeira posicao
+        unsigned int value = 0;
         value = seek_rcb(wrt.device, position + (i * 32));
         fflush(wrt.device);
         if(value == EMPTY_ATTR || value == DELETED_ATTR ) break;
@@ -84,10 +91,14 @@ bool run() {
     read_rcb(wrt.device, wrt.boot.bytes_per_sector);
     unsigned int available_pos = free_positions(wrt.boot.reserved_sectors);
     unsigned short *spaces;
+    int point = 0;
     if (available_pos >= sectors_needed) {
         spaces = get_free_spaces(sectors_needed, wrt.boot.reserved_sectors);
+        if(strcmp(wrt.current_dir,"/") != 0) {
+           cd(wrt.current_dir, wrt.device, wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb, wrt.dir.file_name, wrt.current_dir, point);
+        }
         allocate_rcb_for_file(spaces, sectors_needed, wrt.device, wrt.boot.bytes_per_sector);
-        allocate_root_dir_for_file(spaces[0]);
+        allocate_root_dir_for_file(spaces[0], point);
         return allocate_space_data(sectors_needed, spaces);
     } else {
         print_not_enough_space(sectors_needed * wrt.boot.bytes_per_sector, available_pos * wrt.boot.bytes_per_sector);
@@ -96,10 +107,11 @@ bool run() {
     return true;
 }
 
-int copy_file(const char *target_path, const char *device_name) {
+int copy_file(const char *target_path, const char *device_name, char *origin) {
     bool ret;
     wrt.device_name = device_name;
     wrt.target_path = target_path;
+    wrt.current_dir = origin;
     ret = prepare_files() && run();
     if (!ret) {
         return 1;
@@ -110,3 +122,5 @@ int copy_file(const char *target_path, const char *device_name) {
 
 
 #endif
+
+#pragma clang diagnostic pop

@@ -33,6 +33,7 @@ typedef struct writer {
     unsigned long target_size;
     struct boot_record boot;
     struct root_dir dir;
+    char *current_dir;
 } writer;
 
 typedef struct navigator {

@@ -7,6 +7,7 @@
 int main(int argc, const char **argv) {
     const char *device_name;
     const char *target_file;
+    const char *origin;
 
     if (argc < 2) {
         print_error();
@@ -48,7 +49,12 @@ int main(int argc, const char **argv) {
         }
         target_file = argv[2];
         device_name = argv[3];
-        return copy_file(target_file, device_name);
+        if(argv[4]) {
+            origin = argv[4];
+        } else {
+            origin = "/";
+        }
+        return copy_file(target_file, device_name, origin);
     }
 
     return 0;

@@ -18,7 +18,7 @@ void ls() {
         pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
         size = DIR_ENTRY;
     } else {
-        pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1 + DIR_ENTRY));
+        pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1 + DIR_ENTRY ));
         size = nav.boot.bytes_per_sector;
     }
     for(int i = 0; i < size / 32; i++){
@@ -40,20 +40,24 @@ void pwd() {
     printf("%s\n",nav.current_dir);
 }
 
-void cd(const char *target) {
-    unsigned int pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
-    for(int i = 0; i < DIR_ENTRY - 1; i++) {
-        unsigned char name[sizeof(nav.dir.file_name)];
+void cd(const char *target, FILE *device, unsigned short bytes_per_sector, unsigned short sectors_per_rcb, char *file_name, char * current_dir, int point) {
+    unsigned int pointer_position = (unsigned int) (bytes_per_sector * (sectors_per_rcb + 1));
+    int i;
+    for(i = 0; i < DIR_ENTRY - 1; i++) {
+        unsigned char name[sizeof(file_name)];
         unsigned int type;
-        fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
-        fread(&name, sizeof(name), 1, nav.device);
-        fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + 25, SEEK_SET);
-        fread(&type, sizeof(type), 1, nav.device);
+        fseek(device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&name, sizeof(name), 1, device);
+        fseek(device, pointer_position + (i * ENTRY_SIZE) + 25, SEEK_SET);
+        fread(&type, sizeof(type), 1, device);
         if ((strcmp((const char *) name, target) == 0) && (type == DIRECTORY_ATTR)) {
-            strcat(nav.current_dir, target);
-            printf("%s\n", nav.current_dir);
+            strcpy(current_dir, target);
+            printf("%s\n", current_dir);
+            break;
         }
     }
+    fseek(device, pointer_position + (((DIR_ENTRY * 32) / bytes_per_sector) * bytes_per_sector) + (i * bytes_per_sector), SEEK_SET);
+    point = pointer_position + (((DIR_ENTRY * 32) / bytes_per_sector) * bytes_per_sector) + (i * bytes_per_sector);
 }
 
 void mkdir(const char *target) {
@@ -143,7 +147,8 @@ void parse_command(const char *command) {
     } else if (strcmp(command_token, "cd") == 0) {
         input_token = strtok(NULL, " ");
         if (input_token != NULL) {
-            cd(input_token);
+            int dump;
+            cd(input_token, nav.device, nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, nav.dir.file_name, nav.current_dir, dump);
         } else {
             print_navigator_error();
         }
