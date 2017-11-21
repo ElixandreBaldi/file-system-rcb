@@ -207,13 +207,40 @@ int enter_device(const char *device_name) {
 }
 
 int seek_and_transfer(const char *target, FILE *destiny) {
+    unsigned char buff[nav.boot.bytes_per_sector + 1];
     unsigned int pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
     for (int i = 0; i < DIR_ENTRY - 1; i++) {
         unsigned char name[sizeof(nav.dir.file_name)];
         fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
         fread(&name, sizeof(name), 1, nav.device);
         if (strcmp((const char *) name, target) == 0) {
-            return 0;
+            unsigned int type;
+            unsigned short first_sector, sector_on_table, current_position;
+            fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
+            fread(&type, 1, 1, nav.device);
+            if (type == FILE_ATTR) {
+                fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + FIRST_CLUSTER_POSITION, SEEK_SET);
+                fread(&first_sector, SPACE_SIZE, 1, nav.device);
+                fseek(nav.device, nav.boot.bytes_per_sector + first_sector, SEEK_SET);
+                fread(&sector_on_table, SPACE_SIZE, 1, nav.device);
+                unsigned int j = 0;
+                while (true) {
+                    current_position = navigate(nav.boot.bytes_per_sector + j, nav.device);
+                    fseek(nav.device, nav.boot.bytes_per_sector + j - 2, SEEK_SET);
+                    if (current_position != EMPTY_SPACE && current_position != RCB_EOF) {
+                        j += 2;
+                        //
+                    } else {
+                        fseek(nav.device, 1 + nav.boot.bytes_per_sector * nav.boot.sectors_per_rcb + ((ENTRY_SIZE * DIR_ENTRY) / nav.boot.bytes_per_sector) + nav.boot.bytes_per_sector * j, SEEK_SET);
+                        fread(&buff, 1, sizeof(buff) - 1, nav.device);
+                        buff[sizeof(buff) - 1] = '\0';
+                        printf("%s", buff);
+
+                        break;
+                    }
+                }
+                return 0;
+            }
         }
     }
 

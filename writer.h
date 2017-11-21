@@ -9,7 +9,6 @@
 #include "rcb_utils.h"
 #include "reader.h"
 
-
 writer wrt;
 
 bool prepare_files() {
