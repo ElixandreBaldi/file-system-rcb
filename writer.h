@@ -45,9 +45,6 @@ void allocate_rcb_for_file(unsigned short *spaces, unsigned short sectors_needed
 void allocate_root_dir_for_file(unsigned short first_sector, int pointer){
     unsigned int position = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1) +25);
     int i;
-    if(strcmp(wrt.current_dir,"/") != 0) {
-        position = (unsigned int) (pointer + 25);
-    }
     for(i = 0; i < DIR_ENTRY; i++){
         unsigned char name[sizeof(wrt.dir.file_name)];
         fseek(wrt.device, position + (i * ENTRY_SIZE), SEEK_SET);

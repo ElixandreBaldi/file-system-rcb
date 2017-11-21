@@ -36,7 +36,7 @@ O mínimo de setores existentes no sistema de arquivos RCB é de quatro (o prime
 Como utilizamos 16 bits para endereçamento dos setores, o nosso disco pode ter até 65536 setores independentemente da capacidade do disco. Visto que a tabela de alocação de arquivos aloca até 65536 linhas e que cada linha tem 2 bytes, é fato que a tabela de alocação de dados sempre terá 131072 bytes. Dessa forma, para descobrir quantos setores a tabela de alocação de dados ocupa, é necessário dividir 131072 pela quantidade de bytes por setor, que está especificado no Boot Record.
 
 Vale lembrar que a tabela de alocação de arquivos sempre terá 65536 linhas, mas muitas vezes existirão linhas que endereçarão setores inexistentes, pois o disco pode ter menos do que 65536 setores. Dessa forma no Boot Record, é definido a quantidade de setores no disco. Assim, a tabela de alocação de arquivos não poderá utilizar a partir da posição correspondente ao último valor da tabela do Boot Record. 
-A posição zero da tabela RCB representa a posição ( 1 + Tamanho da tabela RCB ) em setores. Em tempo, a posição zero sempre irá representar o diretório raiz.
+A posição zero da tabela RCB representa a posição ( 1 + Tamanho da tabela RCB ) em setores. Em tempo, a posição zero sempre irá representar o primeiro setor logo após o diretório raiz.
 
 ## Tabela de Dados de Diretórios
 
