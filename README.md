@@ -21,7 +21,7 @@ A tabela abaixo, indica o significado de cada metadado, o offset de início e o 
 | 12 | 2 | Quantidade de setores da tabela de alocação de arquivos |
 | 14 | 2 | Quantidade de setores que existem fisicamente no disco |
 
-O mínimo de setores existentes no sistema de arquivos RCB é de quatro (o primeiro setor reservado ao boot record, o segundo destinado a tabela RCB, o terceiro para o diretório raiz, e o quarto para a área de dados). A quantidade máxima de setores são exatamente a quantidade de linhas da tabela RCB, que seria 2^(16)+tamanho do boot record + tamanho da tabela RBC. A descrição do tamanho da tabela RCB é descrita no escopo do texto.
+O mínimo de setores existentes no sistema de arquivos RCB é de quatro (o primeiro setor reservado ao boot record, o segundo destinado a tabela RCB, o terceiro para o diretório raiz, e o quarto para a área de dados). A quantidade máxima de setores são exatamente a quantidade de linhas da tabela RCB, que seria 2^(16)+tamanho do boot record + tamanho da tabela RBC. A descrição do tamanho da tabela RCB é descrita no escopo do texto. Outra restrição, é que um setor nunca terá menos do que 16 bytes, visto que o boot record necessita estar em um setor, e o mesmo tem tamanho de 16 bytes.
 
 ## Tabela de alocação de arquivos RCB
 
