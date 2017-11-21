@@ -4,7 +4,7 @@
 
 O RCB é um sistema de arquivos baseado na implementação original do File Allocation Table (FAT), que utiliza uma lista ligada como método de alocação. Dessa forma, cada arquivo é composto por uma lista ligada de blocos do disco, evitando assim, desperdícios de memória com fragmentação interna pois, uma vez que o arquivo é composto por diversos setores que de alguma forma referenciam-se uns aos outros, é possivel que esses setores sejam espalhados no disco. O RCB utiliza 16 bits para endereçar os blocos.
 
-O sistema de arquivos RCB enxerga a área de armazenamento como um conjunto de setores de tamanhos iguais. O primeiro setor e os próximos n setores que a tabela de alocação de arquivos está comportada são reservados. O primeiro setor é o Boot Record, que armazena metadados fundamentais para a localização de qualquer dado no disco. Os próximos n setores armazena a tabela de alocação de arquivo e a partir do setor (tamanho do boot record + tamanho da tabela RCB + 1) é destinado exclusivamente para o diretório raiz, as posiçes seguintes são utilizadas para arquivos ou sub-diretórios. O valor n está definido no Boot Record como quantidade de setores da tabela de alocação de arquivos.
+O sistema de arquivos RCB enxerga a área de armazenamento como um conjunto de setores de tamanhos iguais. O primeiro setor e os próximos n setores que a tabela de alocação de arquivos está comportada são reservados. O primeiro setor é o Boot Record, que armazena metadados fundamentais para a localização de qualquer dado no disco. Os próximos n setores armazena a tabela de alocação de arquivo e a partir do setor (tamanho da tabela RCB + 1) é destinado exclusivamente para o diretório raiz, as posiçes seguintes são utilizadas para arquivos ou sub-diretórios. O valor n está definido no Boot Record como quantidade de setores da tabela de alocação de arquivos.
 
 ## Boot Record
 
@@ -36,7 +36,7 @@ O mínimo de setores existentes no sistema de arquivos RCB é de quatro (o prime
 Como utilizamos 16 bits para endereçamento dos setores, o nosso disco pode ter até 65536 setores independentemente da capacidade do disco. Visto que a tabela de alocação de arquivos aloca até 65536 linhas e que cada linha tem 2 bytes, é fato que a tabela de alocação de dados sempre terá 131072 bytes. Dessa forma, para descobrir quantos setores a tabela de alocação de dados ocupa, é necessário dividir 131072 pela quantidade de bytes por setor, que está especificado no Boot Record.
 
 Vale lembrar que a tabela de alocação de arquivos sempre terá 65536 linhas, mas muitas vezes existirão linhas que endereçarão setores inexistentes, pois o disco pode ter menos do que 65536 setores. Dessa forma no Boot Record, é definido a quantidade de setores no disco. Assim, a tabela de alocação de arquivos não poderá utilizar a partir da posição correspondente ao último valor da tabela do Boot Record. 
-A posição zero da tabela RCB representa a posição ( Tamanho do Boot Record + Tamanho da tabela RCB + 1 ) em setores. Em tempo, a posição zero sempre irá representar o diretório raiz.
+A posição zero da tabela RCB representa a posição ( 1 + Tamanho da tabela RCB ) em setores. Em tempo, a posição zero sempre irá representar o diretório raiz.
 
 ## Tabela de Dados de Diretórios
 
@@ -54,13 +54,13 @@ Todos os diretórios da partição terá a seguinte tabela para cada entrada.
 |-|-|
 |Arquivo| 00000000 |
 |Diretório| 00000001 |
-|Hidden| 0000001X |
-|Deletado| 000001XX |
+|Hidden| 00000010 |
+|Deletado| 00000100 |
 |Livre | 00001000 |
 
-Variáveis com X podem ser expressas por '0' ou '1' podendo representar mais de um atributo da tabela. 
+O diretório raiz tem exatamente 512 entradas. Para representar o ponteiro exatamente após o diretório raiz, expressamos com ( 1 + Tamanho da tabela RCB ) + ( (512 * 32) / bytes por setor ), que seria o espaço que temos até o inicio do diretório raiz somado ao tamanho em setores do diretório raiz.
 
 
 ## Subdiretórios
 
-Assim como o diretório raiz, os diretórios ocuparão pelo menos um setor. Cada setor terá n entradas, em que n representa o tamanho de cada diretorio dividido por 32, que é o tamanho da tabela de dados de diretórios.
+Os sub diretórios ocuparão pelo menos um setor. Cada setor terá n entradas, em que n representa o tamanho de cada diretorio dividido por 32, que é o tamanho da tabela de dados de diretórios. Vale lembrar que o sistema é restringido a apenas dois níveis de diretórios.
