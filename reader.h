@@ -231,10 +231,12 @@ int seek_and_transfer(const char *target, FILE *destiny) {
                         j += 2;
                         //
                     } else {
-                        fseek(nav.device, 1 + nav.boot.bytes_per_sector * nav.boot.sectors_per_rcb + ((ENTRY_SIZE * DIR_ENTRY) / nav.boot.bytes_per_sector) + nav.boot.bytes_per_sector * j, SEEK_SET);
-                        fread(&buff, 1, sizeof(buff) - 1, nav.device);
-                        buff[sizeof(buff) - 1] = '\0';
-                        printf("%s", buff);
+                        //fseek(nav.device, nav.boot.reserved_sectors + (RCB_DATA_TABLE * RCB_TABLE_SIZE) + nav.boot.sectors_per_rcb, SEEK_SET);
+                        printf("A: %d\n", nav.boot.reserved_sectors + (RCB_DATA_TABLE * RCB_TABLE_SIZE) + nav.boot.sectors_per_rcb);
+                        printf("B: %d\n", 1 + nav.boot.bytes_per_sector * nav.boot.sectors_per_rcb + ((ENTRY_SIZE * DIR_ENTRY) / nav.boot.bytes_per_sector) + nav.boot.bytes_per_sector * i);
+//                        fread(&buff, 1, sizeof(buff) - 1, nav.device);
+//                        buff[sizeof(buff) - 1] = '\0';
+//                        printf("%s", buff);
 
                         break;
                     }

@@ -73,7 +73,7 @@ void allocate_root_dir_for_file(unsigned short first_sector, int pointer){
 }
 
 bool allocate_space_data(unsigned short sectors_needed, unsigned short *spaces){
-    unsigned int data_position = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1 + DIR_ENTRY));
+    unsigned int data_position = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1 + (DIR_ENTRY * 32) / wrt.boot.bytes_per_sector));
     for(int i = 0; i < sectors_needed; i++) {
         unsigned char data[wrt.boot.bytes_per_sector];
         unsigned int checker;
