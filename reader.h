@@ -6,6 +6,7 @@
 #include "boot_utils.h"
 #include "rcb_utils.h"
 #include "writer.h"
+#include "form.h"
 
 navigator nav;
 
@@ -40,27 +41,30 @@ void pwd() {
     printf("%s\n",nav.current_dir);
 }
 
-void cd(const char *target, FILE *device, unsigned short bytes_per_sector, unsigned short sectors_per_rcb, char *file_name, char * current_dir, int point) {
-    unsigned int pointer_position = (unsigned int) (bytes_per_sector * (sectors_per_rcb + 1));
-    int i;
-    for(i = 0; i < DIR_ENTRY - 1; i++) {
-        unsigned char name[sizeof(file_name)];
-        unsigned int type;
-        fseek(device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
-        fread(&name, sizeof(name), 1, device);
-        fseek(device, pointer_position + (i * ENTRY_SIZE) + 25, SEEK_SET);
-        fread(&type, sizeof(type), 1, device);
-        if ((strcmp((const char *) name, target) == 0) && (type == DIRECTORY_ATTR)) {
-            strcpy(current_dir, target);
-            printf("%s\n", current_dir);
-            break;
+void cd(const char *target, FILE *device, unsigned short bytes_per_sector, unsigned short sectors_per_rcb, const char *file_name, char * current_dir,
+        unsigned int sectors_per_dir) {
+    unsigned int pointer_position = root_begin(bytes_per_sector,sectors_per_rcb);
+    if( strcmp(current_dir, "/") == 0x0){
+        for(int i = 0; i < DIR_ENTRY - 1; i++ ){
+            unsigned char name[FILE_NAME_SIZE];
+            unsigned short cluster;
+            fseek(device, pointer_position, SEEK_SET);
+            fread(&name, sizeof(name), 1, device);
+            name[strlen(file_name)+1] = '\0';
+            if(strcmp((const char *) name, file_name) == 0x0) {
+                fseek(device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
+                fread(&cluster, sizeof(cluster), 1, device);
+                pointer_position = data_section_begin(bytes_per_sector, sectors_per_rcb, sectors_per_dir,cluster);
+                fseek(device,pointer_position , SEEK_SET);
+                printf("%d", pointer_position);
+//                fread(&cluster, sizeof(cluster), 1, device);
+                break;
+            }
         }
     }
-    fseek(device, pointer_position + (((DIR_ENTRY * 32) / bytes_per_sector) * bytes_per_sector) + (i * bytes_per_sector), SEEK_SET);
-    point = pointer_position + (((DIR_ENTRY * 32) / bytes_per_sector) * bytes_per_sector) + (i * bytes_per_sector);
 }
 
-void mkdir(const char *target) {
+void mkdir(const char *target) { // TODO criar funcao para nao inserir nomes iguais
     read_rcb(nav.device, nav.boot.bytes_per_sector);
     unsigned int available_pos = free_positions(nav.boot.reserved_sectors);
     unsigned short *spaces;
@@ -135,7 +139,7 @@ void help() {
 void parse_command(const char *command) {
     char *command_token;
     char *input_token;
-    command_token = strtok(command, " ");
+    command_token = strtok((char *) command, " ");
     if (strcmp(command_token, "ls") == 0) {
         ls();
     } else if (strcmp(command_token, "pwd") == 0) {
@@ -147,8 +151,8 @@ void parse_command(const char *command) {
     } else if (strcmp(command_token, "cd") == 0) {
         input_token = strtok(NULL, " ");
         if (input_token != NULL) {
-            int dump;
-            cd(input_token, nav.device, nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, nav.dir.file_name, nav.current_dir, dump);
+            cd(input_token, nav.device, nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, input_token, nav.current_dir,
+               (unsigned int) ((DIR_ENTRY * RCB_DATA_TABLE) / nav.boot.bytes_per_sector));
         } else {
             print_navigator_error();
         }
@@ -171,9 +175,9 @@ void parse_command(const char *command) {
     }
 }
 
-void init_nav(const char *device_name) {
+void init_nav() {
     char command[255];
-    nav.current_dir = malloc(sizeof(char) * 1);
+    nav.current_dir = malloc(sizeof(char));
     strcpy(nav.current_dir, "/");
     do {
         printf("rcbfs> ");
@@ -201,7 +205,7 @@ int enter_device(const char *device_name) {
         print_non_rcbfs_device();
         return 1;
     }
-    init_nav(device_name);
+    init_nav();
     fclose(nav.device);
     return 0;
 }
