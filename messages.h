@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void print_valid_arguments() {
+void print_valid_arguments () {
     printf("Arguments:\n");
     printf("--format [device]\t\t\t\t\tFormat a device to the RCBFS\n");
     printf("--enter\t [device]\t\t\t\t\tEnter the device listing files and directories\n");
@@ -13,7 +13,7 @@ void print_valid_arguments() {
     printf("--help\t\t\t\t\t\t\t\tDisplay this help message\n");
 }
 
-void print_help() {
+void print_help () {
     printf("    ____  __________ \n"
                    "   / __ \\/ ____/ __ )\n"
                    "  / /_/ / /   / __  |\n"
@@ -24,26 +24,26 @@ void print_help() {
     print_valid_arguments();
 }
 
-void print_error() {
+void print_error () {
     printf("⛔ Invalid arguments\n\n");
     print_valid_arguments();
 }
 
-void print_invalid_file(char *error) {
+void print_invalid_file (char *error) {
     printf("%s\n", error);
 }
 
-void print_invalid_device(char *error) {
+void print_invalid_device (char *error) {
     print_invalid_file(error);
     printf("To see available devices: lsblk -o NAME,TYPE,SIZE,MODEL\n");
 }
 
-void print_navigator_error() {
+void print_navigator_error () {
     printf("⛔ Invalid command\n\n");
     printf("Type 'help' to list available options.\n");
 }
 
-void print_navigator_help() {
+void print_navigator_help () {
     printf("Available commands:\n");
     printf("exit\t\t\t\tExit navigator\n");
     printf("pwd\t\t\t\t\tDisplay the current directory path\n");
@@ -55,32 +55,36 @@ void print_navigator_help() {
     printf("help\t\t\t\tDisplay this help message\n");
 }
 
-void print_non_rcbfs_device() {
+void print_non_rcbfs_device () {
     printf("The device is not on RCBFS. If you want to format it, use the --format option.\n");
 }
 
-void print_not_enough_space(unsigned int needed, unsigned int available) {
+void print_not_enough_space (unsigned int needed, unsigned int available) {
     printf("⛔ Not enough space to allocate file.\n");
     printf("%d bytes needed.\n", needed);
     printf("%d bytes available.\n", available);
 }
 
-void print_sect_size_not_power_of_two(unsigned int actual_size) {
+void print_sect_size_not_power_of_two (unsigned int actual_size) {
     printf("Warning! The sector size is not a power of two and will be decreased.\n");
     printf("Actual sector size: %d\n", actual_size);
 }
 
-void print_insufficient_sect_size(unsigned int actual_size) {
+void print_insufficient_sect_size (unsigned int actual_size) {
     printf("Warning! The sector size is not sufficient and will be increased.\n");
     printf("Actual sector size: %d\n", actual_size);
 }
 
-void print_file_name_repetead(){
+void print_file_name_repetead () {
     printf("This name already used!\n");
 }
 
-void print_dir_is_full() {
+void print_dir_is_full () {
     printf("This directory is full!\n");
+}
+
+void print_no_such_directory () {
+    printf("No such directory.\n");
 }
 
 #endif
