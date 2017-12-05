@@ -8,20 +8,23 @@
 #include "writer.h"
 #include "form.h"
 
-navigator nav;
+static navigator nav;
 
 void ls () {
     char         *current = nav.current_dir;
     char         *dest    = (char *) current[1];
-    unsigned int pointer_position;
+    unsigned int pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
     unsigned int size;
+    unsigned short cluster;
     if (dest == NULL) {
-        pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1));
         size             = DIR_ENTRY;
     } else {
-        pointer_position = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1 + DIR_ENTRY));
+        fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
+        fread(&cluster, sizeof(cluster), 1, nav.device);
+        pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, sectors_per_dir(nav.boot.bytes_per_sector), cluster);
         size             = nav.boot.bytes_per_sector;
     }
+    printf("%d\n", pointer_position);
     for (int i = 0; i < size / 32; i++) {
         unsigned int  type;
         unsigned char name[sizeof(nav.dir.file_name)];
@@ -41,6 +44,13 @@ void pwd () {
     printf("%s\n", nav.current_dir);
 }
 
+unsigned short first_cluster (FILE *device, unsigned int pointer_position) {
+    unsigned short cluster;
+    fseek(device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
+    fread(&cluster, sizeof(cluster), 1, device);
+    return cluster;
+}
+
 void cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_per_rcb, const char *target_dir_name,
          char *current_dir, unsigned int sectors_per_dir) {
     unsigned int pointer_position = root_begin(bytes_per_sector, sectors_per_rcb);
@@ -52,18 +62,13 @@ void cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_p
             fread(&name, sizeof(name), 1, device);
             name[strlen(target_dir_name) + 1] = '\0';
             if (strcmp((const char *) name, target_dir_name) == 0x0) {
-                fseek(device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
-                fread(&cluster, sizeof(cluster), 1, device);
-                pointer_position = data_section_begin(bytes_per_sector, sectors_per_rcb, sectors_per_dir, cluster);
-                fseek(device, pointer_position, SEEK_SET);
-                fread(&cluster, sizeof(cluster), 1, device);
                 strcat(current_dir, target_dir_name);
                 return;
             }
             pointer_position += ENTRY_SIZE;
         }
-        print_no_such_directory();
     }
+    print_no_such_directory();
 }
 
 void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes iguais
@@ -154,7 +159,7 @@ void parse_command (const char *command) {
         input_token = strtok(NULL, " ");
         if (input_token != NULL) {
             cd(nav.device, nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, input_token, nav.current_dir,
-               (unsigned int) ((DIR_ENTRY * RCB_DATA_TABLE) / nav.boot.bytes_per_sector));
+               sectors_per_dir(nav.boot.bytes_per_sector));
         } else {
             print_navigator_error();
         }
