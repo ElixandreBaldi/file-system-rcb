@@ -6,17 +6,18 @@
 static navigator nav;
 
 void ls () {
-    char         *current = nav.current_dir;
-    char         *dest    = (char *) current[1];
-    unsigned int pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
-    unsigned int size;
+    char           *current         = nav.current_dir;
+    char           *dest            = (char *) current[1];
+    unsigned int   pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
+    unsigned int   size;
     unsigned short cluster;
     if (dest == NULL) {
-        size             = DIR_ENTRY;
+        size = DIR_ENTRY;
     } else {
         fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
         fread(&cluster, sizeof(cluster), 1, nav.device);
-        pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, sectors_per_dir(nav.boot.bytes_per_sector), cluster);
+        pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
+                                              sectors_per_dir(nav.boot.bytes_per_sector), cluster);
         size             = nav.boot.bytes_per_sector;
     }
     for (int i = 0; i < size / 32; i++) {
@@ -50,7 +51,7 @@ bool cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_p
     unsigned int pointer_position = root_begin(bytes_per_sector, sectors_per_rcb);
     if (strcmp(current_dir, "/") == 0x0) {
         for (int i = 0; i < DIR_ENTRY - 1; i++) {
-            unsigned char  name[FILE_NAME_SIZE];
+            unsigned char name[FILE_NAME_SIZE];
             fseek(device, pointer_position, SEEK_SET);
             fread(&name, sizeof(name), 1, device);
             name[strlen(dir_path_rcb) + 1] = '\0';
@@ -60,6 +61,16 @@ bool cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_p
             }
             pointer_position += ENTRY_SIZE;
         }
+    } else if (strcmp(dir_path_rcb, "..") == 0x0) {
+        for (int i = (int) strlen(current_dir); i >= 0; i--) {
+            if (current_dir[i] == '/') {
+                current_dir[i + 1] = '\0';
+                if (strlen(current_dir) > 1) {
+                    current_dir[i] = '\0';
+                }
+            }
+        }
+        return true;
     }
     print_no_such_directory();
     return false;
@@ -69,7 +80,8 @@ void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes ig
     read_rcb(nav.device, nav.boot.bytes_per_sector);
     unsigned int   available_pos = free_positions(nav.boot.reserved_sectors);
     unsigned short *spaces;
-    unsigned int   position      = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1) + TYPE_POSITION);
+    unsigned int   position      = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1) +
+                                                   TYPE_POSITION);
     if (available_pos >= 1) {
         spaces = get_free_spaces(1, nav.boot.reserved_sectors);
 #pragma clang diagnostic push
@@ -155,7 +167,8 @@ void parse_command (const char *command) {
     } else if (strcmp(command_token, "cd") == 0) {
         input_token = strtok(NULL, " ");
         if (input_token != NULL) {
-            cd(nav.device, nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, input_token, nav.current_dir); // TODO conferir se a funcao ainda continua correta
+            cd(nav.device, nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, input_token,
+               nav.current_dir); // TODO conferir se a funcao ainda continua correta
         } else {
             print_navigator_error();
         }

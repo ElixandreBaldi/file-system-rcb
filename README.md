@@ -52,11 +52,12 @@ Todos os diretórios da partição terá a seguinte tabela para cada entrada.
 ## Dados possíveis do sistema
 | Descrição | Valor|
 |-|-|
-|Arquivo| 00000000 |
+|Livre | 00000000 |
 |Diretório| 00000001 |
 |Hidden| 00000010 |
 |Deletado| 00000100 |
-|Livre | 00001000 |
+|Arquivo| 00001000 |
+
 
 O diretório raiz tem exatamente 512 entradas. Para representar o ponteiro exatamente após o diretório raiz, expressamos com ( 1 + Tamanho da tabela RCB ) + ( (512 * 32) / bytes por setor ), que seria o espaço que temos até o inicio do diretório raiz somado ao tamanho em setores do diretório raiz.
 
