@@ -55,7 +55,7 @@ Ao executar o comando, serão exibidos três diálogos:
 Para copiar um arquivo para o dispositivo basta indicar o arquivo desejado e o dispositivo destino. O arquivo será copiado para a raiz do dispositivo. O comando é o que segue:
 
 ```
-sudo rcbfs --copy [arquivo] [dispositivo]:[caminho]
+sudo rcbfs --copy [arquivo] [dispositivo] [caminho]
 ```
 
 Substituindo `[arquivo]` pelo arquivo desejado, `[dispositivo]` pelo caminho do dispositivo e `[caminho]` pelo caminho para copiar o dado no RCBFS.
@@ -73,7 +73,7 @@ Se o comando for executado com sucesso, nenhuma mensagem é exibida em tela. Em 
 Exemplo:
 
 ```
-sudo rcbfs -c /home/administrador/arquivo.php /dev/sdc1:/home
+sudo rcbfs -c /home/administrador/arquivo.php /dev/sdc1 /home
 ```
 
 Na versão atual do sistema não é possível copiar diretórios inteiros para o RCBFS.

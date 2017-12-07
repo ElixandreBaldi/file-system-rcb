@@ -1,9 +1,6 @@
 #ifndef RCB_FILE_SYSTEM_MESSAGES_H
 #define RCB_FILE_SYSTEM_MESSAGES_H
 
-#include <stdio.h>
-#include <stdlib.h>
-
 void print_valid_arguments () {
     printf("Arguments:\n");
     printf("--format [device]\t\t\t\t\tFormat a device to the RCBFS\n");

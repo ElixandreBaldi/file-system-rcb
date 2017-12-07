@@ -1,12 +1,6 @@
 #ifndef RCB_FILE_SYSTEM_FORMAT_UTILS_H
 #define RCB_FILE_SYSTEM_FORMAT_UTILS_H
 
-#include <stdio.h>
-#include <errno.h>
-#include "messages.h"
-#include "data_structures.h"
-#include "generic_utils.h"
-
 int clear_rcb( unsigned short sectors_per_rcb, unsigned short bytes_per_sector, FILE *device ){
     unsigned short empty = EMPTY_SPACE;
     fseek(device, bytes_per_sector, SEEK_SET);
@@ -37,7 +31,7 @@ void write_root_dir(FILE *device, unsigned int sect_size, unsigned int sectors_p
     root_dir entry;
     unsigned int posix = sect_size * (sectors_per_rcb+1); // movimentacao do ponteiro para o final da tabela RCB
     memset(entry.file_name, 0, 25);
-    entry.attribute_of_file = 0x8;
+    entry.attribute_of_file = EMPTY_ATTR;
     entry.first_cluster = 0x0;
     entry.size_of_file = 0x0;
     fseek(device, posix , SEEK_SET);

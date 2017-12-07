@@ -1,8 +1,6 @@
 #ifndef RCB_FILE_SYSTEM_FAT_UTILS_H
 #define RCB_FILE_SYSTEM_FAT_UTILS_H
 
-#include <stdio.h>
-#include "data_structures.h"
 
 rcb_table rcb_tbl;
 

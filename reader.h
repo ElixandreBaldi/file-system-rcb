@@ -1,12 +1,7 @@
 #ifndef RCB_FILE_SYSTEM_READER_H
 #define RCB_FILE_SYSTEM_READER_H
 
-#include <stdio.h>
-#include "data_structures.h"
-#include "boot_utils.h"
-#include "rcb_utils.h"
 #include "writer.h"
-#include "form.h"
 
 static navigator nav;
 
@@ -24,7 +19,6 @@ void ls () {
         pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, sectors_per_dir(nav.boot.bytes_per_sector), cluster);
         size             = nav.boot.bytes_per_sector;
     }
-    printf("%d\n", pointer_position);
     for (int i = 0; i < size / 32; i++) {
         unsigned int  type;
         unsigned char name[sizeof(nav.dir.file_name)];
@@ -51,38 +45,41 @@ unsigned short first_cluster (FILE *device, unsigned int pointer_position) {
     return cluster;
 }
 
-void cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_per_rcb, const char *target_dir_name,
-         char *current_dir, unsigned int sectors_per_dir) {
+bool cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_per_rcb, const char *dir_path_rcb,
+         char *current_dir) {
     unsigned int pointer_position = root_begin(bytes_per_sector, sectors_per_rcb);
     if (strcmp(current_dir, "/") == 0x0) {
         for (int i = 0; i < DIR_ENTRY - 1; i++) {
             unsigned char  name[FILE_NAME_SIZE];
-            unsigned short cluster;
             fseek(device, pointer_position, SEEK_SET);
             fread(&name, sizeof(name), 1, device);
-            name[strlen(target_dir_name) + 1] = '\0';
-            if (strcmp((const char *) name, target_dir_name) == 0x0) {
-                strcat(current_dir, target_dir_name);
-                return;
+            name[strlen(dir_path_rcb) + 1] = '\0';
+            if (strcmp((const char *) name, dir_path_rcb) == 0x0) {
+                strcat(current_dir, dir_path_rcb);
+                return true;
             }
             pointer_position += ENTRY_SIZE;
         }
     }
     print_no_such_directory();
+    return false;
 }
 
 void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes iguais
     read_rcb(nav.device, nav.boot.bytes_per_sector);
     unsigned int   available_pos = free_positions(nav.boot.reserved_sectors);
     unsigned short *spaces;
-    unsigned int   position      = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1) + 25);
+    unsigned int   position      = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1) + TYPE_POSITION);
     if (available_pos >= 1) {
         spaces = get_free_spaces(1, nav.boot.reserved_sectors);
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "CannotResolve"
         allocate_rcb_for_file(spaces, 1, nav.device, nav.boot.bytes_per_sector);
+#pragma clang diagnostic pop
         int i;
         for (i = 0; i < DIR_ENTRY; i++) {
             unsigned int value = 0;
-            value = seek_rcb(nav.device, position + (i * 32));
+            value = seek_rcb(nav.device, position + (i * ENTRY_SIZE));
             fflush(nav.device);
             if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
         }
@@ -90,7 +87,7 @@ void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes ig
         nav.dir.first_cluster     = spaces[0];
         nav.dir.size_of_file      = 0;
         nav.dir.attribute_of_file = DIRECTORY_ATTR;
-        fseek(nav.device, (position - 25) + (i * 32), SEEK_SET);
+        fseek(nav.device, (position - TYPE_POSITION) + (i * ENTRY_SIZE), SEEK_SET);
         fwrite(&nav.dir, 1, sizeof(root_dir), nav.device);
         fflush(nav.device);
     }
@@ -158,8 +155,7 @@ void parse_command (const char *command) {
     } else if (strcmp(command_token, "cd") == 0) {
         input_token = strtok(NULL, " ");
         if (input_token != NULL) {
-            cd(nav.device, nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, input_token, nav.current_dir,
-               sectors_per_dir(nav.boot.bytes_per_sector));
+            cd(nav.device, nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, input_token, nav.current_dir); // TODO conferir se a funcao ainda continua correta
         } else {
             print_navigator_error();
         }

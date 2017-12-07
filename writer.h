@@ -3,12 +3,7 @@
 #ifndef RCB_FILE_SYSTEM_WRITER_H
 #define RCB_FILE_SYSTEM_WRITER_H
 
-#include <stdio.h>
-#include <math.h>
-#include "data_structures.h"
-#include "rcb_utils.h"
 #include "reader.h"
-
 
 writer wrt;
 
@@ -43,10 +38,20 @@ void allocate_rcb_for_file (unsigned short *spaces, unsigned short sectors_neede
     sync_rcb(device, bytes_per_sector);
 }
 
-void allocate_root_dir_for_file (unsigned short first_sector, int pointer) {
-    unsigned int position = (unsigned int) (wrt.boot.bytes_per_sector * (wrt.boot.sectors_per_rcb + 1) + 25);
+void allocate_root_dir_for_file (unsigned short first_cluster) {
+    unsigned int size;
+    unsigned int position = root_begin(wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb);
     int          i;
-    for (i = 0; i < DIR_ENTRY; i++) {
+    if (&wrt.current_dir[1] == NULL) {
+        size             = DIR_ENTRY;
+    } else {
+        fseek(wrt.device, position + FIRST_CLUSTER_POSITION, SEEK_SET);
+        fread(&first_cluster, sizeof(first_cluster), 1, wrt.device);
+        position = data_section_begin(wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb, sectors_per_dir(wrt.boot.bytes_per_sector), first_cluster);
+        size             = wrt.boot.bytes_per_sector;
+    }
+    printf("position: %d\n", position);
+    for (i = 0; i < size; i++) {
         unsigned char name[sizeof(wrt.dir.file_name)];
         fseek(wrt.device, position + (i * ENTRY_SIZE), SEEK_SET);
         fread(&name, sizeof(name), 1, wrt.device);
@@ -55,19 +60,22 @@ void allocate_root_dir_for_file (unsigned short first_sector, int pointer) {
             return;
         }
     }
-
-    for (i = 0; i < DIR_ENTRY; i++) {
-        unsigned int value = 0;
-        value = seek_rcb(wrt.device, position + (i * 32));
+    printf("position: %d\n", position);
+    for (i                 = 0; i < size; i++) {
+        printf("Position: %d\n", position);
+        unsigned int value = seek_rcb(wrt.device, position + (i * ENTRY_SIZE));
+        printf("%d\n", value);
         fflush(wrt.device);
         if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
     }
-    const char *filename = last_token(wrt.target_path);
+    printf("position: %d\n", position);
+    const char   *filename = last_token(wrt.target_path);
     strcpy(wrt.dir.file_name, filename);
-    wrt.dir.first_cluster     = first_sector;
+    wrt.dir.first_cluster     = first_cluster;
     wrt.dir.size_of_file      = (unsigned int) wrt.target_size;
     wrt.dir.attribute_of_file = FILE_ATTR;
-    fseek(wrt.device, (position - 25) + (i * 32), SEEK_SET);
+    fseek(wrt.device, (position) + (i * ENTRY_SIZE), SEEK_SET);
+    printf("%d\n", position);
     fwrite(&wrt.dir, 1, sizeof(root_dir), wrt.device);
 }
 
@@ -90,16 +98,14 @@ bool run () {
     read_rcb(wrt.device, wrt.boot.bytes_per_sector);
     unsigned int   available_pos = free_positions(wrt.boot.reserved_sectors);
     unsigned short *spaces;
-    int            point         = 0;
     if (available_pos >= sectors_needed) {
         spaces = get_free_spaces(sectors_needed, wrt.boot.reserved_sectors);
-        if (strcmp(wrt.current_dir, "/") != 0) {
-            cd(wrt.current_dir, wrt.device, wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb, wrt.dir.file_name,
-               wrt.current_dir, point);
+        if(cd(wrt.device, wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb, wrt.dir_path_rcb, wrt.current_dir)) {
+            allocate_rcb_for_file(spaces, sectors_needed, wrt.device, wrt.boot.bytes_per_sector);
+            allocate_root_dir_for_file(spaces[0]);
+            return allocate_space_data(sectors_needed, spaces);
         }
-        allocate_rcb_for_file(spaces, sectors_needed, wrt.device, wrt.boot.bytes_per_sector);
-        allocate_root_dir_for_file(spaces[0], point);
-        return allocate_space_data(sectors_needed, spaces);
+        return false;
     } else {
         print_not_enough_space(sectors_needed * wrt.boot.bytes_per_sector, available_pos * wrt.boot.bytes_per_sector);
         return false;
@@ -109,9 +115,11 @@ bool run () {
 
 int copy_file (const char *target_path, const char *device_name, char *origin) {
     bool ret;
-    wrt.device_name = device_name;
-    wrt.target_path = target_path;
-    wrt.current_dir = origin;
+    wrt.current_dir  = malloc(sizeof(char));
+    wrt.device_name  = device_name;
+    wrt.target_path  = target_path;
+    wrt.dir_path_rcb = &origin[1];
+    strcpy(wrt.current_dir, "/");
     ret = prepare_files() && run();
     if (!ret) {
         return 1;

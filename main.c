@@ -1,13 +1,24 @@
+#include <stdio.h>
 #include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <errno.h>
 #include "messages.h"
+#include "generic_utils.h"
+#include "form.h"
+#include "data_structures.h"
+#include "boot_utils.h"
+#include "rcb_utils.h"
 #include "format_utils.h"
-#include "reader.h"
 #include "writer.h"
+
 
 int main(int argc, const char **argv) {
     const char *device_name;
     const char *target_file;
     const char *origin;
+    const char *path;
 
     if (argc < 2) {
         print_error();
@@ -49,12 +60,12 @@ int main(int argc, const char **argv) {
         }
         target_file = argv[2];
         device_name = argv[3];
-        if(argv[4]) {
+        if(argc >= 5) {
             origin = argv[4];
         } else {
             origin = "/";
         }
-        return copy_file(target_file, device_name, origin);
+        return copy_file(target_file, device_name, (char *) origin);
     }
 
     return 0;

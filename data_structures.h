@@ -1,7 +1,6 @@
 #ifndef RCB_FILE_SYSTEM_BOOT_RECORD_UTILS_H
 #define RCB_FILE_SYSTEM_BOOT_RECORD_UTILS_H
 
-#include "generic_utils.h"
 
 typedef struct boot_record {
     char rcb[2];
@@ -34,6 +33,7 @@ typedef struct writer {
     struct boot_record boot;
     struct root_dir dir;
     char *current_dir;
+    char *dir_path_rcb;
 } writer;
 
 typedef struct navigator {

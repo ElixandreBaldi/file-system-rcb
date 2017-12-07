@@ -1,10 +1,6 @@
 #ifndef RCB_FILE_SYSTEM_GENERIC_UTILS_H
 #define RCB_FILE_SYSTEM_GENERIC_UTILS_H
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <math.h>
-#include "data_structures.h"
 
 #define RCB_TABLE_SIZE 65536
 #define RCB_DATA_TABLE 32
@@ -15,11 +11,11 @@
 #define BTR_SIZE 16
 #define DIR_ENTRY 512
 #define ENTRY_SIZE 32
-#define FILE_ATTR 0x00
+#define FILE_ATTR 0x08
 #define DIRECTORY_ATTR 0x01
 #define HIDDEN_ATTR 0x03
 #define DELETED_ATTR 0x07
-#define EMPTY_ATTR 0x08
+#define EMPTY_ATTR 0x00
 #define TYPE_POSITION 25
 #define FILE_NAME_SIZE 25
 #define FIRST_CLUSTER_POSITION 27
