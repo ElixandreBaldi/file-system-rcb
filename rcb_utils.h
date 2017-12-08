@@ -27,6 +27,7 @@ unsigned short *get_free_spaces (unsigned int sectors_needed, unsigned short sec
         if (rcb_tbl.content[i] == EMPTY_SPACE) {
             values[j] = i;
             j++;
+            printf("VALUES %hu\n", i);
         }
         if (j == sectors_needed) {
             break;

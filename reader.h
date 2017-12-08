@@ -14,13 +14,23 @@ void ls () {
     if (dest == NULL) {
         size = DIR_ENTRY;
     } else {
-        fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
+        size             = nav.boot.bytes_per_sector;
+        int i;
+        for (i = 0; i < size; i++) {
+            unsigned char name[sizeof(&nav.current_dir[1])];
+            fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+            fread(&name, sizeof(name), 1, nav.device);
+            if (strcmp((const char *) name,&nav.current_dir[1]) == 0) {
+                break;
+            }
+        }
+        fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION + (i * ENTRY_SIZE), SEEK_SET);
         fread(&cluster, sizeof(cluster), 1, nav.device);
         pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
                                               sectors_per_dir(nav.boot.bytes_per_sector), cluster);
-        size             = nav.boot.bytes_per_sector;
+
     }
-    for (int i = 0; i < size / 32; i++) {
+    for (int i = 0; i < size / ENTRY_SIZE; i++) {
         unsigned int  type;
         unsigned char name[sizeof(nav.dir.file_name)];
         fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
