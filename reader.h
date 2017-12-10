@@ -117,12 +117,14 @@ void rmDir(const char *target) {
         fread(&name, sizeof(name), 1, nav.device);
         name[strlen(target) + 1] = '\0';
         if (strcmp((const char *) name, target) == 0x0) {
-            unsigned int type, sector_on_table;
+            unsigned int type;
             fseek(nav.device, pointer_position + TYPE_POSITION, SEEK_SET);
             fread(&type, sizeof(type), 1, nav.device);
             fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
             fread(&cluster, sizeof(cluster), 1, nav.device);
             if(type == DIRECTORY_ATTR){
+                fseek(nav.device, pointer_position + TYPE_POSITION, SEEK_SET);
+                fwrite(&deleted, sizeof(deleted), 1, nav.device);
                 pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
                                                       sectors_per_dir(nav.boot.bytes_per_sector), cluster);
                 for(int j = 0; j < nav.boot.bytes_per_sector; j ++){
@@ -133,12 +135,11 @@ void rmDir(const char *target) {
                         fwrite(&deleted, sizeof(deleted), 1, nav.device);
                         fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
                         fread(&cluster, SPACE_SIZE, 1, nav.device);
-                        fseek(nav.device, nav.boot.bytes_per_sector + cluster, SEEK_SET);
-                        fread(&sector_on_table, SPACE_SIZE, 1, nav.device);
                         unsigned int k = 0, current_position;
+                        unsigned int current_pointer= (unsigned int) (nav.boot.bytes_per_sector + (cluster * 2));
                         while (true) {
                             current_position = navigate(nav.boot.bytes_per_sector + k, nav.device);
-                            fseek(nav.device, nav.boot.bytes_per_sector + k, SEEK_SET);
+                            fseek(nav.device, current_pointer + k, SEEK_SET);
                             if (current_position != EMPTY_SPACE && current_position != RCB_EOF) {
                                 k += 2;
                                 fwrite(&free, sizeof(free), 1, nav.device);
