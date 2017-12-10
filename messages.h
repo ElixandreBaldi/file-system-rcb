@@ -84,4 +84,8 @@ void print_no_such_directory () {
     printf("No such directory.\n");
 }
 
+void remove_folder_only(){
+    printf("rm-rf: cannot remove files.\n");
+}
+
 #endif
