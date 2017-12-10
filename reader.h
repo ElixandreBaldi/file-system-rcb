@@ -123,8 +123,14 @@ void rmDir(const char *target) {
             fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
             fread(&cluster, sizeof(cluster), 1, nav.device);
             if(type == DIRECTORY_ATTR){
+
                 fseek(nav.device, pointer_position + TYPE_POSITION, SEEK_SET);
                 fwrite(&deleted, sizeof(deleted), 1, nav.device);
+                fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
+                fread(&cluster, SPACE_SIZE, 1, nav.device);
+                fseek(nav.device, nav.boot.bytes_per_sector + (cluster * 2), SEEK_SET);
+                fwrite(&free, sizeof(free), 1, nav.device);
+
                 pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
                                                       sectors_per_dir(nav.boot.bytes_per_sector), cluster);
                 for(int j = 0; j < nav.boot.bytes_per_sector; j ++){
