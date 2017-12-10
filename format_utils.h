@@ -29,15 +29,15 @@ unsigned int write_boot_record(FILE *device, unsigned int sect_size, long device
 
 void write_root_dir(FILE *device, unsigned int sect_size, unsigned int sectors_per_rcb){
     root_dir entry;
-    unsigned int posix = sect_size * (sectors_per_rcb+1); // movimentacao do ponteiro para o final da tabela RCB
-    memset(entry.file_name, 0, 25);
+    unsigned int posix = sect_size * (sectors_per_rcb+1);
+    memset(entry.file_name, 0, FILE_NAME_SIZE);
     entry.attribute_of_file = EMPTY_ATTR;
     entry.first_cluster = 0x0;
     entry.size_of_file = 0x0;
     fseek(device, posix , SEEK_SET);
     for(int i = 0; i < DIR_ENTRY; i++){
         fwrite(&entry, 1, sizeof(struct root_dir), device);
-        fseek(device, (posix + (i * 32)), SEEK_SET); // avancar a cada 32 bytes de entrada
+        fseek(device, (posix + (i * ENTRY_SIZE)), SEEK_SET);
     }
 }
 

@@ -59,7 +59,6 @@ void allocate_root_dir_for_file (unsigned short first_cluster) {
         fread(&cluster, sizeof(cluster), 1, wrt.device);
         position = data_section_begin(wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb,
                                               sectors_per_dir(wrt.boot.bytes_per_sector), cluster);
-        printf("first cluster writer %d\n", cluster);
     }
     for (i = 0; i < size; i++) {
         unsigned char name[sizeof(wrt.dir.file_name)];

@@ -27,7 +27,6 @@ unsigned short *get_free_spaces (unsigned int sectors_needed, unsigned short sec
         if (rcb_tbl.content[i] == EMPTY_SPACE) {
             values[j] = i;
             j++;
-            printf("VALUES %hu\n", i);
         }
         if (j == sectors_needed) {
             break;
@@ -51,10 +50,6 @@ unsigned short navigate (unsigned int value, FILE *device) {
     fseek(device, value, SEEK_SET);
     fread(&position, SPACE_SIZE, 1, device);
     return position;
-}
-
-unsigned int dir_status (const char *dir) {
-    //
 }
 
 #endif

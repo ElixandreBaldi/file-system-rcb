@@ -49,13 +49,6 @@ void pwd () {
     printf("%s\n", nav.current_dir);
 }
 
-unsigned short first_cluster (FILE *device, unsigned int pointer_position) {
-    unsigned short cluster;
-    fseek(device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
-    fread(&cluster, sizeof(cluster), 1, device);
-    return cluster;
-}
-
 bool cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_per_rcb, const char *dir_path_rcb,
          char *current_dir) {
     unsigned int pointer_position = root_begin(bytes_per_sector, sectors_per_rcb);
@@ -90,8 +83,7 @@ void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes ig
     read_rcb(nav.device, nav.boot.bytes_per_sector);
     unsigned int   available_pos = free_positions(nav.boot.reserved_sectors);
     unsigned short *spaces;
-    unsigned int   position      = (unsigned int) (nav.boot.bytes_per_sector * (nav.boot.sectors_per_rcb + 1) +
-                                                   TYPE_POSITION);
+    unsigned int   position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb) + TYPE_POSITION;
     if (available_pos >= 1) {
         spaces = get_free_spaces(1, nav.boot.reserved_sectors);
 #pragma clang diagnostic push
@@ -178,7 +170,7 @@ void parse_command (const char *command) {
         input_token = strtok(NULL, " ");
         if (input_token != NULL) {
             cd(nav.device, nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb, input_token,
-               nav.current_dir); // TODO conferir se a funcao ainda continua correta
+               nav.current_dir);
         } else {
             print_navigator_error();
         }
