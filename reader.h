@@ -133,7 +133,7 @@ void rmDir(const char *target) {
 
                 pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
                                                       sectors_per_dir(nav.boot.bytes_per_sector), cluster);
-                for(int j = 0; j < nav.boot.bytes_per_sector; j ++){
+                for(int j = 0; j < nav.boot.bytes_per_sector/ ENTRY_SIZE; j ++){
                     fseek(nav.device, pointer_position + TYPE_POSITION, SEEK_SET);
                     fread(&type, sizeof(type), 1, nav.device);
                     if(type != DELETED_ATTR && type != EMPTY_ATTR) {
