@@ -79,6 +79,10 @@ bool cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_p
     return false;
 }
 
+bool mv (const char *source, const char *target) {
+    return true;
+}
+
 void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes iguais
     read_rcb(nav.device, nav.boot.bytes_per_sector);
     unsigned int   available_pos = free_positions(nav.boot.reserved_sectors);
@@ -157,6 +161,7 @@ void help () {
 void parse_command (const char *command) {
     char *command_token;
     char *input_token;
+    char *target_token;
     command_token = strtok((char *) command, " ");
     if (strcmp(command_token, "ls") == 0) {
         ls();
@@ -185,6 +190,18 @@ void parse_command (const char *command) {
         input_token = strtok(NULL, " ");
         if (input_token != NULL) {
             mkdir(input_token);
+        } else {
+            print_navigator_error();
+        }
+    } else if (strcmp(command_token, "mv") == 0) {
+        input_token = strtok(NULL, " ");
+        if (input_token != NULL) {
+            target_token = strtok(NULL, " ");
+            if (target_token != NULL) {
+                mv(input_token, target_token);
+            } else {
+                print_navigator_error();
+            }
         } else {
             print_navigator_error();
         }

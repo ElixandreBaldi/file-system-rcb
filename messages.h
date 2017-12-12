@@ -48,6 +48,7 @@ void print_navigator_help () {
     printf("cd [dir]\t\t\tEnter a given directory\n");
     printf("rm [dir|file]\t\tRemove a given directory or file\n");
     printf("mkdir [dir]\t\t\tCreate a new directory\n");
+    printf("mv [dir|file] [dir]\tMove a file or directory to another directory.\n");
     printf("info\t\t\t\tDisplay the device information\n");
     printf("help\t\t\t\tDisplay this help message\n");
 }
