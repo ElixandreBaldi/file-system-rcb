@@ -14,13 +14,13 @@ void ls () {
     if (dest == NULL) {
         size = DIR_ENTRY;
     } else {
-        size             = nav.boot.bytes_per_sector;
+        size = nav.boot.bytes_per_sector;
         int i;
         for (i = 0; i < size; i++) {
             unsigned char name[sizeof(&nav.current_dir[1])];
             fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
             fread(&name, sizeof(name), 1, nav.device);
-            if (strcmp((const char *) name,&nav.current_dir[1]) == 0) {
+            if (strcmp((const char *) name, &nav.current_dir[1]) == 0x0) {
                 break;
             }
         }
@@ -80,15 +80,44 @@ bool cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_p
 }
 
 bool mv (const char *source, const char *target) {
+    if (target[0] != '/') {
+        print_must_be_absolute_path();
+        return false;
+    }
+    char           *p               = strtok((char *) target, "/");
+    unsigned int   pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
+    unsigned short next_cluster;
+    bool           found            = false;
+    bool           moving_to_root   = true;
+    if (p != NULL) {
+        moving_to_root = false;
+        for (int i     = 0; i < DIR_ENTRY - 1; i++) {
+            unsigned char name[FILE_NAME_SIZE + 1];
+            fseek(nav.device, pointer_position, SEEK_SET);
+            fread(&name, sizeof(name), 1, nav.device);
+            name[FILE_NAME_SIZE] = '\0';
+            if (strcmp((const char *) name, p) == 0x0) {
+                found = true;
+                fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
+                fread(&next_cluster, sizeof(next_cluster), 1, nav.device);
+                break;
+            }
+            pointer_position += ENTRY_SIZE;
+        }
+        if (!found || strtok(NULL, "/") != NULL) {
+            print_no_such_directory();
+            return false;
+        }
+    }
+
     return true;
 }
 
 void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes iguais
     read_rcb(nav.device, nav.boot.bytes_per_sector);
-    unsigned int   available_pos = free_positions(nav.boot.reserved_sectors);
     unsigned short *spaces;
     unsigned int   position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb) + TYPE_POSITION;
-    if (available_pos >= 1) {
+    if (free_positions(1)) {
         spaces = get_free_spaces(1, nav.boot.reserved_sectors);
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "CannotResolve"

@@ -100,9 +100,8 @@ bool allocate_space_data (unsigned short sectors_needed, unsigned short *spaces)
 bool run () {
     unsigned short sectors_needed = (unsigned short) ceil((wrt.target_size / (double) wrt.boot.bytes_per_sector));
     read_rcb(wrt.device, wrt.boot.bytes_per_sector);
-    unsigned int   available_pos = free_positions(wrt.boot.reserved_sectors);
     unsigned short *spaces;
-    if (available_pos >= sectors_needed) {
+    if (free_positions(sectors_needed)) {
         spaces = get_free_spaces(sectors_needed, wrt.boot.reserved_sectors);
         if(cd(wrt.device, wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb, wrt.dir_path_rcb, wrt.current_dir)) {
             allocate_rcb_for_file(spaces, sectors_needed, wrt.device, wrt.boot.bytes_per_sector);
@@ -110,7 +109,7 @@ bool run () {
             return allocate_space_data(sectors_needed, spaces);
         }
     } else {
-        print_not_enough_space(sectors_needed * wrt.boot.bytes_per_sector, available_pos * wrt.boot.bytes_per_sector);
+        print_not_enough_space(sectors_needed * wrt.boot.bytes_per_sector, wrt.boot.bytes_per_sector);
     }
     return false;
 }
