@@ -81,10 +81,9 @@ bool cd(FILE *device, unsigned short bytes_per_sector, unsigned short sectors_pe
 
 void mkdir(const char *target) { // TODO criar funcao para nao inserir nomes iguais
     read_rcb(nav.device, nav.boot.bytes_per_sector);
-    unsigned int available_pos = free_positions(nav.boot.reserved_sectors);
     unsigned short *spaces;
     unsigned int position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb) + TYPE_POSITION;
-    if (available_pos >= 1) {
+    if (free_positions(1)) {
         spaces = get_free_spaces(1, nav.boot.reserved_sectors);
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "CannotResolve"
@@ -141,15 +140,16 @@ void rmDir(const char *target) {
                         fwrite(&deleted, sizeof(deleted), 1, nav.device);
                         fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
                         fread(&cluster, SPACE_SIZE, 1, nav.device);
-                        unsigned int k = 0, current_position;
-                        unsigned int current_pointer= (unsigned int) (nav.boot.bytes_per_sector + (cluster * 2));
+                        unsigned int current_position = (unsigned int) (cluster * 2) + nav.boot.bytes_per_sector;
                         while (true) {
-                            current_position = navigate(nav.boot.bytes_per_sector + k, nav.device);
-                            fseek(nav.device, current_pointer + k, SEEK_SET);
-                            if (current_position != EMPTY_SPACE && current_position != RCB_EOF) {
-                                k += 2;
+                            fseek(nav.device, current_position, SEEK_SET);
+                            fread(&cluster, SPACE_SIZE, 1, nav.device);
+                            if ( cluster != EMPTY_SPACE && cluster != RCB_EOF) {
+                                fseek(nav.device, current_position, SEEK_SET);
+                                current_position = (unsigned int) ((cluster * 2) + nav.boot.bytes_per_sector);
                                 fwrite(&free, sizeof(free), 1, nav.device);
                             } else {
+                                fseek(nav.device, current_position, SEEK_SET);
                                 fwrite(&free, sizeof(free), 1, nav.device);
                                 break;
                             }
