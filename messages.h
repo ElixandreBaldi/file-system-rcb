@@ -85,6 +85,10 @@ void print_no_such_directory () {
     printf("No such directory.\n");
 }
 
+void print_no_such_file () {
+    printf("No such file.\n");
+}
+
 void print_must_be_absolute_path () {
     printf("The target path must be absolute.\n");
 }

@@ -84,30 +84,80 @@ bool mv (const char *source, const char *target) {
         print_must_be_absolute_path();
         return false;
     }
+
     char           *p               = strtok((char *) target, "/");
-    unsigned int   pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
-    unsigned short next_cluster;
-    bool           found            = false;
-    bool           moving_to_root   = true;
+    unsigned int   pointer_position;
+    unsigned short target_dir_cluster;
+    unsigned short file_being_moved_cluster;
+    bool found_target_dir  = false;
+    bool found_source_file = false;
+    bool moving_to_root    = true;
+    int            i                = 0;
+    char           *current;
+    char           *dest;
+    unsigned int   size;
+
+    // verify if the target dir exists
+    pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
     if (p != NULL) {
         moving_to_root = false;
-        for (int i     = 0; i < DIR_ENTRY - 1; i++) {
+        for (int i = 0; i < DIR_ENTRY - 1; i++) {
             unsigned char name[FILE_NAME_SIZE + 1];
             fseek(nav.device, pointer_position, SEEK_SET);
             fread(&name, sizeof(name), 1, nav.device);
             name[FILE_NAME_SIZE] = '\0';
             if (strcmp((const char *) name, p) == 0x0) {
-                found = true;
+                found_target_dir = true;
                 fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
-                fread(&next_cluster, sizeof(next_cluster), 1, nav.device);
+                fread(&target_dir_cluster, sizeof(target_dir_cluster), 1, nav.device);
                 break;
             }
             pointer_position += ENTRY_SIZE;
         }
-        if (!found || strtok(NULL, "/") != NULL) {
+        if (!found_target_dir || strtok(NULL, "/") != NULL) {
             print_no_such_directory();
             return false;
         }
+    }
+
+    // verify if the current file exists
+    pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
+    current          = nav.current_dir;
+    dest             = &current[1];
+    if (dest == NULL) {
+        size = DIR_ENTRY;
+    } else {
+        size   = nav.boot.bytes_per_sector;
+        for (i = 0; i < size; i++) {
+            unsigned char name[sizeof(dest)];
+            fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+            fread(&name, sizeof(name), 1, nav.device);
+            if (strcmp((const char *) name, dest) == 0x0) {
+                break;
+            }
+        }
+        fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&file_being_moved_cluster, sizeof(file_being_moved_cluster), 1, nav.device);
+        pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
+                                              sectors_per_dir(nav.boot.bytes_per_sector), file_being_moved_cluster);
+
+    }
+    for (i = 0; i < size / ENTRY_SIZE; i++) {
+        unsigned int  type;
+        unsigned char name[sizeof(nav.dir.file_name)];
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
+        fread(&type, 1, 1, nav.device);
+        if (type != DELETED_ATTR && type != EMPTY_ATTR && type == FILE_ATTR) {
+            fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+            fread(&name, 1, sizeof(name), nav.device);
+            if (strcmp((const char *) name, source) == 0x0) {
+                found_source_file = true;
+            }
+        }
+    }
+    if (!found_source_file) {
+        print_no_such_file();
+        return false;
     }
 
     return true;
