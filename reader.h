@@ -85,17 +85,20 @@ bool mv (const char *source, const char *target) {
         return false;
     }
 
-    char           *p               = strtok((char *) target, "/");
+    char           *p = strtok((char *) target, "/");
     unsigned int   pointer_position;
     unsigned short target_dir_cluster;
     unsigned short file_being_moved_cluster;
     bool found_target_dir  = false;
     bool found_source_file = false;
     bool moving_to_root    = true;
-    int            i                = 0;
+    int            i  = 0;
     char           *current;
     char           *dest;
     unsigned int   size;
+    unsigned short bkp_attr;
+    root_dir       bkp_entry;
+
 
     // verify if the target dir exists
     pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
@@ -123,8 +126,8 @@ bool mv (const char *source, const char *target) {
     // verify if the current file exists
     pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
     current          = nav.current_dir;
-    dest             = (char *) current[1];
-    if (dest == NULL) {
+    dest             = &current[1];
+    if (dest[0] == '\0') {
         size = DIR_ENTRY;
     } else {
         size   = nav.boot.bytes_per_sector;
@@ -140,18 +143,22 @@ bool mv (const char *source, const char *target) {
         fread(&file_being_moved_cluster, sizeof(file_being_moved_cluster), 1, nav.device);
         pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
                                               sectors_per_dir(nav.boot.bytes_per_sector), file_being_moved_cluster);
-
     }
-    for (i = 0; i < size / ENTRY_SIZE; i++) {
+    for (i           = 0; i < size / ENTRY_SIZE; i++) {
         unsigned int  type;
-        unsigned char name[sizeof(nav.dir.file_name)];
         fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
         fread(&type, 1, 1, nav.device);
         if (type != DELETED_ATTR && type != EMPTY_ATTR && type == FILE_ATTR) {
             fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
-            fread(&name, 1, sizeof(name), nav.device);
-            if (strcmp((const char *) name, source) == 0x0) {
+            fread(&bkp_entry, 1, sizeof(bkp_entry), nav.device);
+            if (strcmp((const char *) bkp_entry.file_name, source) == 0x0) {
+                bkp_attr = bkp_entry.attribute_of_file;
+                bkp_entry.attribute_of_file = DELETED_ATTR;
+                fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+                fwrite(&bkp_entry, 1, sizeof(bkp_entry), nav.device);
+                bkp_entry.attribute_of_file = bkp_attr;
                 found_source_file = true;
+                break;
             }
         }
     }
@@ -159,6 +166,8 @@ bool mv (const char *source, const char *target) {
         print_no_such_file();
         return false;
     }
+
+    //TODO go back to the target dir and write
 
     return true;
 }
