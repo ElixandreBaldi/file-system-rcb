@@ -4,14 +4,17 @@
 
 rcb_table rcb_tbl;
 
-unsigned int free_positions (unsigned short sectors_per_disk) {
+bool free_positions (unsigned short sectors_needed) {
     unsigned int        count = 0;
-    for (unsigned short i     = 0; i < sectors_per_disk; i++) {
+    for (unsigned short i     = 0; i < RCB_TABLE_SIZE; i++) {
         if (rcb_tbl.content[i] == EMPTY_SPACE) {
             count++;
+            if(count == sectors_needed){
+                return true;
+            }
         }
     }
-    return count;
+    return false;
 }
 
 unsigned int read_rcb (FILE *device, unsigned short bytes_per_sector) {
