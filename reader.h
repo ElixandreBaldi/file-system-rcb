@@ -164,23 +164,27 @@ bool mv (const char *source, const char *target) {
 }
 
 bool rnm (const char *current_name, const char *new_name) {
-    if (!strlen(new_name)) {
+    size_t length            = strlen(new_name);
+    if (!length || length > FILE_NAME_SIZE) {
         print_invalid_name();
         return false;
     }
 
+    const char     name_to_write[FILE_NAME_SIZE];
     unsigned int   pointer_position;
     unsigned short file_being_renamed_cluster;
-    bool found_source_file = false;
-    int            i                = 0;
+    bool   found_source_file = false;
+    int            i         = 0;
     char           *current;
     char           *dest;
     unsigned int   size;
 
+    strcpy((char *) name_to_write, new_name);
+
     pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
     current          = nav.current_dir;
-    dest             = (char *) current[1];
-    if (dest == NULL) {
+    dest             = &current[1];
+    if (dest[0] == '\0') {
         size = DIR_ENTRY;
     } else {
         size   = nav.boot.bytes_per_sector;
@@ -208,7 +212,7 @@ bool rnm (const char *current_name, const char *new_name) {
             fread(&name, 1, sizeof(name), nav.device);
             if (strcmp((const char *) name, current_name) == 0x0) {
                 fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
-                fwrite(new_name, 1, sizeof(new_name), nav.device);
+                fwrite(name_to_write, 1, sizeof(name_to_write), nav.device);
                 found_source_file = true;
                 break;
             }
@@ -223,6 +227,12 @@ bool rnm (const char *current_name, const char *new_name) {
 }
 
 void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes iguais
+    if (strlen(target) > FILE_NAME_SIZE) {
+        print_invalid_name();
+        return;
+    }
+    const char name_to_write[FILE_NAME_SIZE];
+    strcpy((char *) name_to_write, target);
     read_rcb(nav.device, nav.boot.bytes_per_sector);
     unsigned short *spaces;
     unsigned int   position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb) + TYPE_POSITION;
@@ -239,7 +249,7 @@ void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes ig
             fflush(nav.device);
             if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
         }
-        strcpy(nav.dir.file_name, target);
+        strcpy(nav.dir.file_name, name_to_write);
         nav.dir.first_cluster     = spaces[0];
         nav.dir.size_of_file      = 0;
         nav.dir.attribute_of_file = DIRECTORY_ATTR;
@@ -362,8 +372,8 @@ void parse_command (const char *command) {
 
 void init_nav () {
     char command[255];
-    nav.current_dir = malloc(sizeof(char));
-    strcpy(nav.current_dir, "/");
+    nav.current_dir = malloc(sizeof(char[2]));
+    strcpy(nav.current_dir, "/\0");
     do {
         printf("rcbfs> ");
         scanf("%[^\n]s", command);
