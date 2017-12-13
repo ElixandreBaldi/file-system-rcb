@@ -167,7 +167,18 @@ bool mv (const char *source, const char *target) {
         return false;
     }
 
-    //TODO go back to the target dir and write
+    if (moving_to_root) {
+        pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb)  + TYPE_POSITION;
+        for (i           = 0; i < DIR_ENTRY; i++) {
+            unsigned int value = 0;
+            value = seek_rcb(nav.device, pointer_position + (i * ENTRY_SIZE));
+            fflush(nav.device);
+            if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
+        }
+        fseek(nav.device, (pointer_position - TYPE_POSITION) + (i * ENTRY_SIZE), SEEK_SET);
+        fwrite(&bkp_entry, 1, sizeof(bkp_entry), nav.device);
+        fflush(nav.device);
+    }
 
     return true;
 }
