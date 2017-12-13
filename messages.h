@@ -42,15 +42,16 @@ void print_navigator_error () {
 
 void print_navigator_help () {
     printf("Available commands:\n");
-    printf("exit\t\t\t\tExit navigator\n");
-    printf("pwd\t\t\t\t\tDisplay the current directory path\n");
-    printf("ls\t\t\t\t\tList the current directory\n");
-    printf("cd [dir]\t\t\tEnter a given directory\n");
-    printf("rm [dir|file]\t\tRemove a given directory or file\n");
-    printf("mkdir [dir]\t\t\tCreate a new directory\n");
-    printf("mv [dir|file] [dir]\tMove a file or directory to another directory.\n");
-    printf("info\t\t\t\tDisplay the device information\n");
-    printf("help\t\t\t\tDisplay this help message\n");
+    printf("exit\t\t\t\t\tExit navigator\n");
+    printf("pwd\t\t\t\t\t\tDisplay the current directory path\n");
+    printf("ls\t\t\t\t\t\tList the current directory\n");
+    printf("cd [dir]\t\t\t\tEnter a given directory\n");
+    printf("rm [dir|file]\t\t\tRemove a given directory or file\n");
+    printf("mkdir [dir]\t\t\t\tCreate a new directory\n");
+    printf("mv [file] [dir]\t\t\tMove a file or directory to another directory.\n");
+    printf("rnm [dir|file] [name]\tChange the name of a directory or file.\n");
+    printf("info\t\t\t\t\tDisplay the device information\n");
+    printf("help\t\t\t\t\tDisplay this help message\n");
 }
 
 void print_non_rcbfs_device () {
@@ -91,6 +92,10 @@ void print_no_such_file () {
 
 void print_must_be_absolute_path () {
     printf("The target path must be absolute.\n");
+}
+
+void print_invalid_name () {
+    printf("Invalid name.\n");
 }
 
 #endif

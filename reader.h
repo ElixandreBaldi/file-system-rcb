@@ -123,7 +123,7 @@ bool mv (const char *source, const char *target) {
     // verify if the current file exists
     pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
     current          = nav.current_dir;
-    dest             = &current[1];
+    dest             = (char *) current[1];
     if (dest == NULL) {
         size = DIR_ENTRY;
     } else {
@@ -152,6 +152,65 @@ bool mv (const char *source, const char *target) {
             fread(&name, 1, sizeof(name), nav.device);
             if (strcmp((const char *) name, source) == 0x0) {
                 found_source_file = true;
+            }
+        }
+    }
+    if (!found_source_file) {
+        print_no_such_file();
+        return false;
+    }
+
+    return true;
+}
+
+bool rnm (const char *current_name, const char *new_name) {
+    if (!strlen(new_name)) {
+        print_invalid_name();
+        return false;
+    }
+
+    unsigned int   pointer_position;
+    unsigned short file_being_renamed_cluster;
+    bool found_source_file = false;
+    int            i                = 0;
+    char           *current;
+    char           *dest;
+    unsigned int   size;
+
+    pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
+    current          = nav.current_dir;
+    dest             = (char *) current[1];
+    if (dest == NULL) {
+        size = DIR_ENTRY;
+    } else {
+        size   = nav.boot.bytes_per_sector;
+        for (i = 0; i < size; i++) {
+            unsigned char name[sizeof(dest)];
+            fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+            fread(&name, sizeof(name), 1, nav.device);
+            if (strcmp((const char *) name, dest) == 0x0) {
+                break;
+            }
+        }
+        fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&file_being_renamed_cluster, sizeof(file_being_renamed_cluster), 1, nav.device);
+        pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
+                                              sectors_per_dir(nav.boot.bytes_per_sector), file_being_renamed_cluster);
+    }
+
+    for (i = 0; i < size / ENTRY_SIZE; i++) {
+        unsigned int  type;
+        unsigned char name[sizeof(nav.dir.file_name)];
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
+        fread(&type, 1, 1, nav.device);
+        if (type != DELETED_ATTR && type != EMPTY_ATTR) {
+            fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+            fread(&name, 1, sizeof(name), nav.device);
+            if (strcmp((const char *) name, current_name) == 0x0) {
+                fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+                fwrite(new_name, 1, sizeof(new_name), nav.device);
+                found_source_file = true;
+                break;
             }
         }
     }
@@ -278,6 +337,18 @@ void parse_command (const char *command) {
             target_token = strtok(NULL, " ");
             if (target_token != NULL) {
                 mv(input_token, target_token);
+            } else {
+                print_navigator_error();
+            }
+        } else {
+            print_navigator_error();
+        }
+    } else if (strcmp(command_token, "rnm") == 0) {
+        input_token = strtok(NULL, " ");
+        if (input_token != NULL) {
+            target_token = strtok(NULL, " ");
+            if (target_token != NULL) {
+                rnm(input_token, target_token);
             } else {
                 print_navigator_error();
             }
