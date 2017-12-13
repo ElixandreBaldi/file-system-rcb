@@ -46,8 +46,9 @@ void print_navigator_help () {
     printf("pwd\t\t\t\t\tDisplay the current directory path\n");
     printf("ls\t\t\t\t\tList the current directory\n");
     printf("cd [dir]\t\t\tEnter a given directory\n");
-    printf("rm [dir|file]\t\tRemove a given directory or file\n");
+    printf("rm [dir|file]\t\tRemove a given file\n");
     printf("mkdir [dir]\t\t\tCreate a new directory\n");
+    printf("rm-rf [dir]\t\t\tRemove a given directory\n");
     printf("info\t\t\t\tDisplay the device information\n");
     printf("help\t\t\t\tDisplay this help message\n");
 }
@@ -82,6 +83,10 @@ void print_dir_is_full () {
 
 void print_no_such_directory () {
     printf("No such directory.\n");
+}
+
+void remove_file_only() {
+    printf("rm: cannot remove directory.\n");
 }
 
 void remove_folder_only(){

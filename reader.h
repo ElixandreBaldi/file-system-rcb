@@ -79,7 +79,7 @@ bool cd(FILE *device, unsigned short bytes_per_sector, unsigned short sectors_pe
     return false;
 }
 
-void mkdir(const char *target) { // TODO criar funcao para nao inserir nomes iguais
+void mkdir(const char *target) {
     read_rcb(nav.device, nav.boot.bytes_per_sector);
     unsigned short *spaces;
     unsigned int position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb) + TYPE_POSITION;
@@ -121,7 +121,7 @@ void rmDir(const char *target) {
             fread(&type, sizeof(type), 1, nav.device);
             fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
             fread(&cluster, sizeof(cluster), 1, nav.device);
-            if(type == DIRECTORY_ATTR){
+            if (type == DIRECTORY_ATTR) {
 
                 fseek(nav.device, pointer_position + TYPE_POSITION, SEEK_SET);
                 fwrite(&deleted, sizeof(deleted), 1, nav.device);
@@ -132,10 +132,10 @@ void rmDir(const char *target) {
 
                 pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
                                                       sectors_per_dir(nav.boot.bytes_per_sector), cluster);
-                for(int j = 0; j < nav.boot.bytes_per_sector/ ENTRY_SIZE; j ++){
+                for (int j = 0; j < nav.boot.bytes_per_sector / ENTRY_SIZE; j++) {
                     fseek(nav.device, pointer_position + TYPE_POSITION, SEEK_SET);
                     fread(&type, sizeof(type), 1, nav.device);
-                    if(type != DELETED_ATTR && type != EMPTY_ATTR) {
+                    if (type != DELETED_ATTR && type != EMPTY_ATTR) {
                         fseek(nav.device, pointer_position + TYPE_POSITION, SEEK_SET);
                         fwrite(&deleted, sizeof(deleted), 1, nav.device);
                         fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
@@ -144,7 +144,7 @@ void rmDir(const char *target) {
                         while (true) {
                             fseek(nav.device, current_position, SEEK_SET);
                             fread(&cluster, SPACE_SIZE, 1, nav.device);
-                            if ( cluster != EMPTY_SPACE && cluster != RCB_EOF) {
+                            if (cluster != EMPTY_SPACE && cluster != RCB_EOF) {
                                 fseek(nav.device, current_position, SEEK_SET);
                                 current_position = (unsigned int) ((cluster * 2) + nav.boot.bytes_per_sector);
                                 fwrite(&free, sizeof(free), 1, nav.device);
@@ -198,6 +198,8 @@ void rm(const char *target) {
             }
             fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
             fwrite(&deleted, DELETED_ATTR, 1, nav.device);
+        } else {
+            remove_file_only();
         }
     }
 }
@@ -208,7 +210,7 @@ void info() {
     printf("Sector size: %u\n", nav.boot.bytes_per_sector);
 }
 
-void help() { // TODO adicionar funcao de mostrar o rm -rf no help
+void help() {
     print_navigator_help();
 }
 
