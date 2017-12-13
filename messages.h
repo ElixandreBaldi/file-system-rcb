@@ -93,4 +93,8 @@ void remove_folder_only(){
     printf("rm-rf: cannot remove files.\n");
 }
 
+void print_invalid_name() {
+    printf("Invalid name.\n");
+}
+
 #endif

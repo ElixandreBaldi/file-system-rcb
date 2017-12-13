@@ -80,6 +80,12 @@ bool cd(FILE *device, unsigned short bytes_per_sector, unsigned short sectors_pe
 }
 
 void mkdir(const char *target) {
+    if (strlen(target) > FILE_NAME_SIZE) {
+        print_invalid_name();
+        return;
+    }
+    const char name_to_write[FILE_NAME_SIZE];
+    strcpy((char *) name_to_write, target);
     read_rcb(nav.device, nav.boot.bytes_per_sector);
     unsigned short *spaces;
     unsigned int position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb) + TYPE_POSITION;
@@ -96,7 +102,8 @@ void mkdir(const char *target) {
             fflush(nav.device);
             if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
         }
-        strcpy(nav.dir.file_name, target);
+        memset(nav.dir.file_name, 0x00, FILE_NAME_SIZE);
+        strcpy(nav.dir.file_name, name_to_write);
         nav.dir.first_cluster = spaces[0];
         nav.dir.size_of_file = 0;
         nav.dir.attribute_of_file = DIRECTORY_ATTR;
@@ -106,7 +113,7 @@ void mkdir(const char *target) {
     }
 }
 
-void rmDir(const char *target) {
+void rmDirectory(const char *target) {
     unsigned int pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
     unsigned short deleted = DELETED_ATTR, cluster, free = EMPTY_SPACE;
 
@@ -114,9 +121,9 @@ void rmDir(const char *target) {
         unsigned char name[FILE_NAME_SIZE];
         fseek(nav.device, pointer_position, SEEK_SET);
         fread(&name, sizeof(name), 1, nav.device);
-        name[strlen(target) + 1] = '\0';
+        name[FILE_NAME_SIZE - 1] = '\0';
         if (strcmp((const char *) name, target) == 0x0) {
-            unsigned int type;
+            unsigned short type;
             fseek(nav.device, pointer_position + TYPE_POSITION, SEEK_SET);
             fread(&type, sizeof(type), 1, nav.device);
             fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
@@ -140,6 +147,8 @@ void rmDir(const char *target) {
                         fwrite(&deleted, sizeof(deleted), 1, nav.device);
                         fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
                         fread(&cluster, SPACE_SIZE, 1, nav.device);
+                        fseek(nav.device, pointer_position + FIRST_CLUSTER_POSITION, SEEK_SET);
+                        fwrite(&free, sizeof(free), 1, nav.device);
                         unsigned int current_position = (unsigned int) (cluster * 2) + nav.boot.bytes_per_sector;
                         while (true) {
                             fseek(nav.device, current_position, SEEK_SET);
@@ -244,7 +253,7 @@ void parse_command(const char *command) {
     } else if (strcmp(command_token, "rm-rf") == 0) {
         input_token = strtok(NULL, " ");
         if (input_token != NULL) {
-            rmDir(input_token);
+            rmDirectory(input_token);
         } else {
             print_navigator_error();
         }
