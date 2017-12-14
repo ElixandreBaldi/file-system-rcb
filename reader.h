@@ -11,7 +11,7 @@ void nav_find(int pointer_position, const char *target_find, char *path, bool ro
         size = DIR_ENTRY;
     }
     else{
-        size = nav.boot.bytes_per_sector;
+        size = nav.boot.bytes_per_sector / 32;
     }
 
     int i;
@@ -32,7 +32,6 @@ void nav_find(int pointer_position, const char *target_find, char *path, bool ro
             if(comp) {
                 printf("directory: %s%s -> size = %hu bytes \n",path,dir.file_name,dir.size_of_file);
             }
-
             nav_find(new_pointer_position, target_find, path_tmp, false);
         }
         else if(dir.attribute_of_file == FILE_ATTR) {
@@ -127,11 +126,16 @@ bool cd (FILE *device, unsigned short bytes_per_sector, unsigned short sectors_p
 }
 
 void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes iguais
+    if (strlen(target) > FILE_NAME_SIZE) {
+        print_invalid_name();
+        return;
+    }
+    const char name_to_write[FILE_NAME_SIZE];
+    strcpy((char *) name_to_write, target);
     read_rcb(nav.device, nav.boot.bytes_per_sector);
-    unsigned int   available_pos = free_positions(nav.boot.reserved_sectors);
     unsigned short *spaces;
-    unsigned int   position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb) + TYPE_POSITION;
-    if (available_pos >= 1) {
+    unsigned int position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb) + TYPE_POSITION;
+    if (free_positions(1)) {
         spaces = get_free_spaces(1, nav.boot.reserved_sectors);
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "CannotResolve"
@@ -144,9 +148,10 @@ void mkdir (const char *target) { // TODO criar funcao para nao inserir nomes ig
             fflush(nav.device);
             if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
         }
-        strcpy(nav.dir.file_name, target);
-        nav.dir.first_cluster     = spaces[0];
-        nav.dir.size_of_file      = 0;
+        memset(nav.dir.file_name, 0x00, FILE_NAME_SIZE);
+        strcpy(nav.dir.file_name, name_to_write);
+        nav.dir.first_cluster = spaces[0];
+        nav.dir.size_of_file = 0;
         nav.dir.attribute_of_file = DIRECTORY_ATTR;
         fseek(nav.device, (position - TYPE_POSITION) + (i * ENTRY_SIZE), SEEK_SET);
         fwrite(&nav.dir, 1, sizeof(root_dir), nav.device);
