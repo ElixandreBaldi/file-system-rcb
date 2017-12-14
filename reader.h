@@ -98,6 +98,7 @@ bool mv (const char *source, const char *target) {
     unsigned int   size;
     unsigned short bkp_attr;
     root_dir       bkp_entry;
+    root_dir       buff_entry;
 
 
     // verify if the target dir exists
@@ -174,10 +175,14 @@ bool mv (const char *source, const char *target) {
                                               sectors_per_dir(nav.boot.bytes_per_sector), target_dir_cluster);
     }
     for (i           = 0; i < size; i++) {
-        unsigned int value = 0;
-        value = seek_rcb(nav.device, pointer_position + (i * ENTRY_SIZE));
-        fflush(nav.device);
-        if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&buff_entry, 1, sizeof(buff_entry), nav.device);
+        if (strcmp(buff_entry.file_name, source) == 0x0) {
+            if (buff_entry.attribute_of_file != DELETED_ATTR) {
+                break;
+            }
+        }
+        if (buff_entry.attribute_of_file == EMPTY_ATTR || buff_entry.attribute_of_file == DELETED_ATTR) break;
     }
     fseek(nav.device, pointer_position + i * ENTRY_SIZE, SEEK_SET);
     fwrite(&bkp_entry, 1, sizeof(bkp_entry), nav.device);
@@ -201,6 +206,7 @@ bool rnm (const char *current_name, const char *new_name) {
     char           *current;
     char           *dest;
     unsigned int   size;
+    root_dir       buff_entry;
 
     strcpy((char *) name_to_write, new_name);
 
@@ -226,14 +232,21 @@ bool rnm (const char *current_name, const char *new_name) {
     }
 
     for (i = 0; i < size / ENTRY_SIZE; i++) {
-        unsigned int  type;
-        unsigned char name[sizeof(nav.dir.file_name)];
-        fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
-        fread(&type, 1, 1, nav.device);
-        if (type != DELETED_ATTR && type != EMPTY_ATTR) {
-            fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
-            fread(&name, 1, sizeof(name), nav.device);
-            if (strcmp((const char *) name, current_name) == 0x0) {
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&buff_entry, 1, sizeof(buff_entry), nav.device);
+        if (buff_entry.attribute_of_file != DELETED_ATTR && buff_entry.attribute_of_file != EMPTY_ATTR) {
+            if (strcmp((const char *) buff_entry.file_name, name_to_write) == 0x0) {
+                print_file_name_repetead();
+                return false;
+            }
+        }
+    }
+
+    for (i = 0; i < size / ENTRY_SIZE; i++) {
+        fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&buff_entry, 1, sizeof(buff_entry), nav.device);
+        if (buff_entry.attribute_of_file != DELETED_ATTR && buff_entry.attribute_of_file != EMPTY_ATTR) {
+            if (strcmp((const char *) buff_entry.file_name, current_name) == 0x0) {
                 fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
                 fwrite(name_to_write, 1, sizeof(name_to_write), nav.device);
                 found_source_file = true;
@@ -245,7 +258,7 @@ bool rnm (const char *current_name, const char *new_name) {
         print_no_such_file();
         return false;
     }
-
+    fflush(nav.device);
     return true;
 }
 
