@@ -104,7 +104,7 @@ bool mv (const char *source, const char *target) {
     pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
     if (p != NULL) {
         moving_to_root = false;
-        for (int i = 0; i < DIR_ENTRY - 1; i++) {
+        for (i         = 0; i < DIR_ENTRY - 1; i++) {
             unsigned char name[FILE_NAME_SIZE + 1];
             fseek(nav.device, pointer_position, SEEK_SET);
             fread(&name, sizeof(name), 1, nav.device);
@@ -132,7 +132,7 @@ bool mv (const char *source, const char *target) {
     } else {
         size   = nav.boot.bytes_per_sector;
         for (i = 0; i < size; i++) {
-            unsigned char name[sizeof(dest)];
+            unsigned char name[FILE_NAME_SIZE];
             fseek(nav.device, pointer_position + (i * ENTRY_SIZE), SEEK_SET);
             fread(&name, sizeof(name), 1, nav.device);
             if (strcmp((const char *) name, dest) == 0x0) {
@@ -145,7 +145,7 @@ bool mv (const char *source, const char *target) {
                                               sectors_per_dir(nav.boot.bytes_per_sector), file_being_moved_cluster);
     }
     for (i           = 0; i < size / ENTRY_SIZE; i++) {
-        unsigned int  type;
+        unsigned int type;
         fseek(nav.device, pointer_position + (i * ENTRY_SIZE) + TYPE_POSITION, SEEK_SET);
         fread(&type, 1, 1, nav.device);
         if (type != DELETED_ATTR && type != EMPTY_ATTR && type == FILE_ATTR) {
@@ -168,17 +168,20 @@ bool mv (const char *source, const char *target) {
     }
 
     if (moving_to_root) {
-        pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb)  + TYPE_POSITION;
-        for (i           = 0; i < DIR_ENTRY; i++) {
-            unsigned int value = 0;
-            value = seek_rcb(nav.device, pointer_position + (i * ENTRY_SIZE));
-            fflush(nav.device);
-            if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
-        }
-        fseek(nav.device, (pointer_position - TYPE_POSITION) + (i * ENTRY_SIZE), SEEK_SET);
-        fwrite(&bkp_entry, 1, sizeof(bkp_entry), nav.device);
-        fflush(nav.device);
+        pointer_position = root_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb);
+    } else {
+        pointer_position = data_section_begin(nav.boot.bytes_per_sector, nav.boot.sectors_per_rcb,
+                                              sectors_per_dir(nav.boot.bytes_per_sector), target_dir_cluster);
     }
+    for (i           = 0; i < size; i++) {
+        unsigned int value = 0;
+        value = seek_rcb(nav.device, pointer_position + (i * ENTRY_SIZE));
+        fflush(nav.device);
+        if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
+    }
+    fseek(nav.device, pointer_position + i * ENTRY_SIZE, SEEK_SET);
+    fwrite(&bkp_entry, 1, sizeof(bkp_entry), nav.device);
+    fflush(nav.device);
 
     return true;
 }

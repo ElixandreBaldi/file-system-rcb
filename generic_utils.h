@@ -63,9 +63,9 @@ const char *last_token (const char *content) {
     return &content[divider_index + 1];
 }
 
-unsigned int seek_rcb (FILE *device, unsigned int posix) {
+unsigned int seek_rcb (FILE *device, unsigned int position) {
     unsigned int value;
-    fseek(device, posix, SEEK_SET);
+    fseek(device, position, SEEK_SET);
     fread(&value, 1, 1, device);
     return value;
 }
