@@ -39,10 +39,11 @@ void allocate_rcb_for_file (unsigned short *spaces, unsigned short sectors_neede
 }
 
 void allocate_root_dir_for_file (unsigned short first_cluster) {
-    unsigned int size;
-    unsigned int position = root_begin(wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb);
-    int          i;
+    unsigned int   size;
+    unsigned int   position  = root_begin(wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb);
+    int            i;
     unsigned short cluster;
+    root_dir       buff_entry;
     if (&wrt.current_dir[1] == NULL) {
         size             = DIR_ENTRY;
     } else {
@@ -60,7 +61,7 @@ void allocate_root_dir_for_file (unsigned short first_cluster) {
         position = data_section_begin(wrt.boot.bytes_per_sector, wrt.boot.sectors_per_rcb,
                                               sectors_per_dir(wrt.boot.bytes_per_sector), cluster);
     }
-    for (i = 0; i < size; i++) {
+    for (i                   = 0; i < size; i++) {
         unsigned char name[sizeof(wrt.dir.file_name)];
         fseek(wrt.device, position + (i * ENTRY_SIZE), SEEK_SET);
         fread(&name, sizeof(name), 1, wrt.device);
@@ -69,18 +70,24 @@ void allocate_root_dir_for_file (unsigned short first_cluster) {
             return;
         }
     }
+    const char     *filename = last_token(wrt.target_path);
     for (i                 = 0; i < size; i++) {
-        unsigned int value = seek_rcb(wrt.device, position + (i * ENTRY_SIZE));
-        fflush(wrt.device);
-        if (value == EMPTY_ATTR || value == DELETED_ATTR) break;
+        fseek(wrt.device, position + (i * ENTRY_SIZE), SEEK_SET);
+        fread(&buff_entry, 1, sizeof(buff_entry), wrt.device);
+        if (strcmp(buff_entry.file_name, filename) == 0x0) {
+            if (buff_entry.attribute_of_file != DELETED_ATTR) {
+                break;
+            }
+        }
+        if (buff_entry.attribute_of_file == EMPTY_ATTR || buff_entry.attribute_of_file == DELETED_ATTR) break;
     }
-    const char   *filename = last_token(wrt.target_path);
     strcpy(wrt.dir.file_name, filename);
     wrt.dir.first_cluster     = first_cluster;
     wrt.dir.size_of_file      = (unsigned int) wrt.target_size;
     wrt.dir.attribute_of_file = FILE_ATTR;
     fseek(wrt.device, (position) + (i * ENTRY_SIZE), SEEK_SET);
     fwrite(&wrt.dir, 1, sizeof(root_dir), wrt.device);
+    fflush(wrt.device);
 }
 
 bool allocate_space_data (unsigned short sectors_needed, unsigned short *spaces) {

@@ -194,7 +194,7 @@ Substituindo `[diretório]` pela entrada desejada.
 
 Se a entrada existir e for um diretório presente no diretório atual, o sistema de arquivos estará apontado para o mesmo. Note que na versão atual do sistema, só há dois níveis de diretórios (raiz e um nível seguinte).
 
-> Atenção: Na versão atual do sistema, todos os caminhos são relativos ao diretório atual. Não utilize caminhos absolutos.
+> O caminho deve ser relativo ao diretório atual. Não utilize caminho absoluto.
 
 Exemplo:
 
@@ -216,8 +216,6 @@ Substituindo `[diretório|arquivo]` pela entrada desejada.
 
 Se a entrada existir, a mesma será removida.
 
-> Atenção: Na versão atual do sistema, todos os caminhos são relativos ao diretório atual. Não utilize caminhos absolutos.
-
 Exemplo:
 
 ```
@@ -225,3 +223,43 @@ rcbfs> rm index.js
 ```
 
 Esta ação não pode ser desfeita.
+
+### Renomeando um arquivo ou diretório
+
+Para renomear um arquivo ou diretório do sistema de arquivos, é necessário utilizar:
+
+```
+rnm [diretório|arquivo] [nome]
+```
+
+Substituindo `[diretório|arquivo]` pela entrada que deseja-se renomear e `[nome]` pelo novo nome que deseja-se atribuir.
+
+> O arquivo/diretório deve ser inserido como caminho relativo.
+
+Exemplo:
+
+```
+rcbfs> rnm arquivos_antigos arquivos_para_excluir
+```
+
+Note que o nome deve estar entre 1 e 27 caracteres.
+
+### Movendo um arquivo
+
+Para mover um arquivo, utilize o comando `mv`.
+
+```
+mv [arquivo] [novo_caminho]
+```
+
+Substituindo `[arquivo]` pelo arquivo que deseja-se mover e `[novo_caminho]` pela pasta que deseja-se inserir este arquivo, a partir do diretório raiz.
+
+> O arquivo deve ser em caminho relativo. O diretório destino deve ser em caminho absoluto
+
+Exemplo:
+
+```
+mv arquivo_antigo.txt /para_excluir
+```
+
+Para mover para o diretório raiz, basta utilizar `/` como diretório destino.
