@@ -1,15 +1,14 @@
 #ifndef RCB_FILE_SYSTEM_FAT_UTILS_H
 #define RCB_FILE_SYSTEM_FAT_UTILS_H
 
-
 rcb_table rcb_tbl;
 
-bool free_positions (unsigned short sect_needed) {
+bool free_positions (unsigned short sectors_needed) {
     unsigned int        count = 0;
     for (unsigned short i     = 0; i < RCB_TABLE_SIZE; i++) {
         if (rcb_tbl.content[i] == EMPTY_SPACE) {
             count++;
-            if (sect_needed == count) {
+            if(count == sectors_needed){
                 return true;
             }
         }

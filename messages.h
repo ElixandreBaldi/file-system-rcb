@@ -21,13 +21,17 @@ void print_help () {
     print_valid_arguments();
 }
 
+void print_invalid_file (char *error) {
+    printf("%s\n", error);
+}
+
 void print_error () {
     printf("⛔ Invalid arguments\n\n");
     print_valid_arguments();
 }
 
-void print_invalid_file (char *error) {
-    printf("%s\n", error);
+void print_invalid_name() {
+    printf("Invalid name.\n");
 }
 
 void print_invalid_device (char *error) {
