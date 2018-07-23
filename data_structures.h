@@ -1,7 +1,6 @@
 #ifndef RCB_FILE_SYSTEM_BOOT_RECORD_UTILS_H
 #define RCB_FILE_SYSTEM_BOOT_RECORD_UTILS_H
 
-
 typedef struct boot_record {
     char rcb[2];
     unsigned short bytes_per_sector;

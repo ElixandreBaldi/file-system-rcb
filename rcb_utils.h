@@ -1,7 +1,6 @@
 #ifndef RCB_FILE_SYSTEM_FAT_UTILS_H
 #define RCB_FILE_SYSTEM_FAT_UTILS_H
 
-
 rcb_table rcb_tbl;
 
 bool free_positions (unsigned short sectors_needed) {

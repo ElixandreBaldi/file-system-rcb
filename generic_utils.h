@@ -11,11 +11,11 @@
 #define BTR_SIZE 16
 #define DIR_ENTRY 512
 #define ENTRY_SIZE 32
-#define FILE_ATTR 0x08
-#define DIRECTORY_ATTR 0x01
-#define HIDDEN_ATTR 0x03
-#define DELETED_ATTR 0x07
 #define EMPTY_ATTR 0x00
+#define DIRECTORY_ATTR 0x01
+#define HIDDEN_ATTR 0x02
+#define DELETED_ATTR 0x04
+#define FILE_ATTR 0x08
 #define TYPE_POSITION 25
 #define FILE_NAME_SIZE 25
 #define FIRST_CLUSTER_POSITION 27
@@ -63,9 +63,9 @@ const char *last_token (const char *content) {
     return &content[divider_index + 1];
 }
 
-unsigned int seek_rcb (FILE *device, unsigned int posix) {
+unsigned int seek_rcb (FILE *device, unsigned int position) {
     unsigned int value;
-    fseek(device, posix, SEEK_SET);
+    fseek(device, position, SEEK_SET);
     fread(&value, 1, 1, device);
     return value;
 }
