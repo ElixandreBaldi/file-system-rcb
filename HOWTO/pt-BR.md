@@ -204,12 +204,19 @@ rcbfs> cd arquivos
 
 Para voltar ao diretório anterior utilize `..` (dois pontos) como nome da entrada. Isso não é possível no diretório raiz.
 
-### Removendo um arquivo ou diretório
+### Removendo um arquivo
 
-Para remover um arquivo ou diretório do sistema de arquivos, basta digitar o seguinte comando:
+Para remover um arquivo do sistema de arquivos, basta digitar o seguinte comando:
 
 ```
-rm [diretório|arquivo]
+rm [arquivo]
+```
+### Removendo um diretório
+
+Para remover um diretorio do sistema de arquivos, basta digitar o seguinte comando:
+
+```
+rm-rf [diretório]
 ```
 
 Substituindo `[diretório|arquivo]` pela entrada desejada.

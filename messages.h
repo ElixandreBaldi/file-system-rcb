@@ -54,6 +54,7 @@ void print_navigator_help () {
     printf("mkdir [dir]\t\t\t\tCreate a new directory\n");
     printf("mv [file] [dir]\t\t\tMove a file or directory to another directory.\n");
     printf("rnm [dir|file] [name]\tChange the name of a directory or file.\n");
+    printf("rm-rf [dir]\t\t\tRemove a given directory\n");
     printf("info\t\t\t\t\tDisplay the device information\n");
     printf("help\t\t\t\t\tDisplay this help message\n");
 }
@@ -88,6 +89,18 @@ void print_dir_is_full () {
 
 void print_no_such_directory () {
     printf("No such directory.\n");
+}
+
+void remove_file_only() {
+    printf("rm: cannot remove directory.\n");
+}
+
+void remove_folder_only(){
+    printf("rm-rf: cannot remove files.\n");
+}
+
+void print_invalid_name() {
+    printf("Invalid Name.\n");
 }
 
 void print_no_such_file () {

@@ -107,6 +107,7 @@ bool allocate_space_data (unsigned short sectors_needed, unsigned short *spaces)
 bool run () {
     unsigned short sectors_needed = (unsigned short) ceil((wrt.target_size / (double) wrt.boot.bytes_per_sector));
     read_rcb(wrt.device, wrt.boot.bytes_per_sector);
+    unsigned int   available_pos = 0;
     unsigned short *spaces;
     if (free_positions(sectors_needed)) {
         spaces = get_free_spaces(sectors_needed, wrt.boot.reserved_sectors);
